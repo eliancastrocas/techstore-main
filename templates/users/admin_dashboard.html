@@ -1,0 +1,286 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--wood-medium);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--wood-accent);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--wood-light);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--wood-dark);
+        }
+
+        .users-table {
+            width: 100%;
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: var(--wood-dark);
+            color: var(--white);
+            padding: 20px;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 60px 1.5fr 1fr 1fr 1.5fr 250px;
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table-row:hover {
+            background: var(--wood-light);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-verified { background: #d4edda; color: #155724; }
+        .status-approved { background: #d1ecf1; color: #0c5460; }
+        .status-blocked { background: #f8d7da; color: #721c24; }
+        .status-cliente { background: #e2e3e5; color: #383d41; }
+
+        .role-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .role-cliente { background: #e9ecef; color: #495057; }
+        .role-vendedor { background: #fff3cd; color: #856404; }
+        .role-admin { background: #d4edda; color: #155724; }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-approve { background: var(--success); color: white; }
+        .btn-block { background: var(--danger); color: white; }
+        .btn-edit { background: var(--wood-accent); color: white; }
+
+        .btn-approve:hover, .btn-block:hover, .btn-edit:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">TechStore Admin</a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Inicio</a>
+            <a href="{% url 'admin_vendors' %}">Gestionar Vendedores</a>
+            <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="stat-label">Total Usuarios</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_clients }}</div>
+                <div class="stat-label">Clientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_vendors }}</div>
+                <div class="stat-label">Vendedores</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ pending_vendors }}</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h1 class="section-title">Gestión de Usuarios</h1>
+        </div>
+
+        {% if users %}
+        <table class="users-table">
+            <div class="table-header">
+                <strong>ID</strong>
+                <strong>Usuario</strong>
+                <strong>Rol</strong>
+                <strong>Estado</strong>
+                <strong>Teléfono / Tienda</strong>
+                <strong>Acciones</strong>
+            </div>
+            {% for profile in users %}
+            <div class="table-row">
+                <strong>{{ profile.id }}</strong>
+                <div>
+                    <strong>{{ profile.user.username }}</strong><br>
+                    <small>{{ profile.user.email }}</small>
+                </div>
+                <span class="role-badge role-{{ profile.role }}">{{ profile.get_role_display }}</span>
+                <span class="status-badge status-{{ profile.status|default:profile.role }}">{{ profile.get_status_display|default:profile.get_role_display }}</span>
+                <div>
+                    {{ profile.phone|default:"—" }}<br>
+                    {% if profile.role == 'vendedor' %}{{ profile.store_name|default:"—" }}{% endif %}
+                </div>
+                <div>
+                    <a href="{% url 'admin_user_detail' profile.id %}" class="btn-small btn-edit">Ver Detalles</a>
+                    {% if not profile.approved_by_admin %}
+                    <a href="{% url 'admin_approve_user' profile.id %}" class="btn-small btn-approve">Aprobar</a>
+                    {% endif %}
+                    <a href="{% url 'admin_toggle_role' profile.id %}" class="btn-small" style="background: var(--wood-accent); color: white;">Cambiar Rol</a>
+                    <a href="{% url 'admin_toggle_status' profile.id %}" class="btn-small btn-block">
+                        {% if profile.status == 'blocked' %}Activar{% else %}Bloquear{% endif %}
+                    </a>
+                    <a href="{% url 'admin_delete_user' profile.id %}" class="btn-small" style="background: var(--danger); color: white;" onclick="return confirm('¿Eliminar PERMANENTEMENTE {{ profile.user.username }} y todos sus datos?')">Eliminar</a>
+                </div>
+            </div>
+            {% endfor %}
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <h2>No hay usuarios registrados</h2>
+            <p>Será el primero en registrarse</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+

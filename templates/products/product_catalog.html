@@ -1,0 +1,320 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); }
+
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--wood-accent);
+        }
+
+        .btn-home {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--wood-dark);
+            font-size: 1.8rem;
+        }
+
+        .filters {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .filters form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--wood-dark);
+        }
+
+        .filter-group input, .filter-group select {
+            padding: 10px;
+            border: 2px solid var(--wood-light);
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-filter {
+            background: var(--wood-accent);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-clear {
+            background: var(--wood-medium);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            height: 180px;
+            background: var(--wood-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 18px;
+        }
+
+        .product-info h3 {
+            color: var(--wood-dark);
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .product-info .description {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            min-height: 40px;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: var(--wood-accent);
+            font-size: 1.1rem;
+        }
+
+        .btn-add {
+            background: var(--wood-accent);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-add:hover {
+            background: #a67041;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        .cart-badge {
+            background: var(--wood-accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Inicio</a>
+            <a href="{% url 'services_catalog' %}">Servicios</a>
+            <a href="{% url 'order_list' %}">Mis Compras</a>
+            <a href="{% url 'cart_detail' %}">Carrito {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}</a>
+            <a href="{% url 'home' %}" class="btn-home">Volver al Inicio</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Catálogo de Productos</h1>
+        </div>
+
+        <div class="filters">
+            <form method="GET">
+                <div class="filter-group">
+                    <label for="q">Buscar</label>
+                    <input type="text" name="q" id="q" value="{{ query|default:'' }}" placeholder="Nombre o descripción...">
+                </div>
+                <div class="filter-group">
+                    <label for="category">Categoría</label>
+                    <select name="category" id="category">
+                        <option value="">Todas</option>
+                        <option value="celular" {% if category == 'celular' %}selected{% endif %}>Celulares</option>
+                        <option value="tv" {% if category == 'tv' %}selected{% endif %}>Televisores</option>
+                        <option value="parlante" {% if category == 'parlante' %}selected{% endif %}>Parlantes</option>
+                        <option value="audifonos" {% if category == 'audifonos' %}selected{% endif %}>Audífonos</option>
+                        <option value="smartwatch" {% if category == 'smartwatch' %}selected{% endif %}>Smartwatches</option>
+                        <option value="cargador" {% if category == 'cargador' %}selected{% endif %}>Cargadores</option>
+                        <option value="cable" {% if category == 'cable' %}selected{% endif %}>Cables</option>
+                        <option value="tablet" {% if category == 'tablet' %}selected{% endif %}>Tablets</option>
+                        <option value="laptop" {% if category == 'laptop' %}selected{% endif %}>Laptops</option>
+                        <option value="accesorio" {% if category == 'accesorio' %}selected{% endif %}>Accesorios</option>
+                        <option value="otro" {% if category == 'otro' %}selected{% endif %}>Otros</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="min_price">Precio mínimo</label>
+                    <input type="number" name="min_price" id="min_price" value="{{ min_price|default:'' }}" placeholder="0" step="0.01">
+                </div>
+                <div class="filter-group">
+                    <label for="max_price">Precio máximo</label>
+                    <input type="number" name="max_price" id="max_price" value="{{ max_price|default:'' }}" placeholder="999999" step="0.01">
+                </div>
+                <div class="filter-group">
+                    <button type="submit" class="btn-filter">🔍 Filtrar</button>
+                </div>
+                <div class="filter-group">
+                    <a href="{% url 'product_catalog' %}" class="btn-clear">🧹 Limpiar</a>
+                </div>
+            </form>
+        </div>
+
+        {% if products %}
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image">
+                    {% if product.display_image %}
+                    <img src="{{ product.display_image }}" alt="{{ product.name }}">
+                    {% else %}
+                    <span style="font-size: 3rem;">📦</span>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <p class="description">{{ product.description|truncatechars:80 }}</p>
+                        <div class="product-footer">
+                        <div class="product-price">${{ product.price|floatformat:0 }}</div>
+                        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+                            <a href="{% url 'product_details' product.id %}" class="btn-add" style="background:rgba(0,0,0,0.06);color:var(--wood-dark);border:1px solid rgba(0,0,0,0.08);">Ver detalles</a>
+                            {% if user.is_authenticated and user.profile.is_cliente %}
+                                <a href="{% url 'cart_add_product' product.id %}" class="btn-add">Agregar al carrito</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h2>No hay productos disponibles</h2>
+            <p>Intenta con otros filtros de búsqueda.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

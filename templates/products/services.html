@@ -1,0 +1,246 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-home {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .service-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .service-title {
+            color: var(--wood-dark);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .service-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--wood-accent);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .service-description {
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .service-btn {
+            /* El ancho 100% hacía que el layout se viera “raro” en el centrado */
+            width: auto;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+
+            /* Evitar “línea”/subrayado y artefactos visuales en el <a> */
+            text-decoration: none;
+            outline: none;
+            border-bottom: none;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .service-btn:hover {
+            background-color: #a67041;
+        }
+
+        .service-actions-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        /* Asegurar centrado visual real de los botones (los <a> ya no deben “deformar” el layout) */
+        .service-actions-center .service-btn {
+            width: auto;
+            min-width: 280px;
+        }
+
+        .service-actions-column {
+            flex-direction: column;
+            width: 100%;
+            gap: 12px;
+        }
+
+        .no-services {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Catálogo</a>
+            <a href="{% url 'cart_detail' %}">Carrito ({{ cart_count }})</a>
+             <a href="{% url 'product_list' %}">Mis Productos</a>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <h1 style="text-align: center; color: var(--wood-dark); font-size: 2.5rem; margin-bottom: 20px;">🔧 Nuestros Servicios</h1>
+        <p style="text-align: center; color: var(--text-dark); margin-bottom: 40px; font-size: 1.2rem;">Expertos en reparación y mantenimiento de tecnología</p>
+        
+        <h2 style="text-align: center; color: var(--wood-dark); font-size: 1.8rem; margin-bottom: 30px;">📋 Servicios Disponibles</h2>
+        
+        <!-- Static showcase services -->
+        <div class="services-grid">
+            <!-- Reparación Card -->
+            <div class="service-card">
+                <div class="service-icon">🔧</div>
+                <h3 class="service-title">Reparación de Dispositivos</h3>
+                <p class="service-description">Reparamos celulares, laptops, tablets y más. Diagnóstico gratuito.</p>
+                <div class="service-actions-center">
+                    <a href="{% url 'reparacion_form' %}" class="service-btn">Solicitar Reparación</a>
+                </div>
+
+            </div>
+            
+            <!-- Mantenimiento Card -->
+            <div class="service-card">
+                <div class="service-icon">🛠️</div>
+                <h3 class="service-title">Mantenimiento Preventivo</h3>
+                <p class="service-description">Limpieza profunda, optimización y chequeo completo de su equipo.</p>
+                <div class="service-actions-center">
+                    <a href="{% url 'mantenimiento_form' %}" class="service-btn">Solicitar Mantenimiento</a>
+                </div>
+            </div>
+
+            
+            <!-- Atención al Cliente Card -->
+            <div class="service-card">
+                <div class="service-icon">💬</div>
+                <h3 class="service-title">Atención al Cliente</h3>
+                <p class="service-description">Contáctenos por nuestras redes sociales para asesoría personalizada.</p>
+                    <div class="service-actions-center service-actions-column">
+                        <a href="https://instagram.com/elianncas" target="_blank" class="service-btn" style="background-color: #E4405F;">📸 Instagram</a>
+                        <a href="https://wa.me/573125656485" target="_blank" class="service-btn" style="background-color: #25D366;">💬 WhatsApp</a>
+                    </div>
+            </div>
+        </div>
+
+        {% if services %}
+            <h2 style="text-align: center; color: var(--wood-dark); font-size: 1.8rem; margin: 60px 0 30px 0;">🛒 Servicios en Catálogo</h2>
+            <div class="services-grid">
+                {% for service in services %}
+                <div class="service-card">
+                    {% if service.category == 'reparacion' %}
+                        <div class="service-icon">🔧</div>
+                    {% elif service.category == 'mantenimiento' %}
+                        <div class="service-icon">🛠️</div>
+                    {% elif service.category == 'diagnostico' %}
+                        <div class="service-icon">🔍</div>
+                    {% else %}
+                        <div class="service-icon">⚙️</div>
+                    {% endif %}
+                    <h3 class="service-title">{{ service.name }}</h3>
+                    <div class="service-price">{{ service.price|currency }}</div>
+                    <p class="service-description">{{ service.description }}</p>
+                    {% if user.is_authenticated and user.profile.is_cliente %}
+                        <form method="post" action="{% url 'cart_add_service' service.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="service-btn">Agregar al Carrito</button>
+                        </form>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

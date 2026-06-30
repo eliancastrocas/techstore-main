@@ -1,0 +1,688 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos de Stock | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+            --success: #2e7d32;
+            --danger: #c62828;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--wood-accent);
+        }
+
+        .btn-logout {
+            background-color: var(--wood-medium);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium));
+            border-radius: 20px;
+            padding: 30px;
+            color: var(--white);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .welcome-banner h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Form Section */
+        .form-section {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-section h2 {
+            color: var(--wood-dark);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .movement-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--wood-dark);
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid var(--wood-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--wood-accent);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-registrar {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            grid-column: 1 / -1;
+        }
+
+        .btn-registrar:hover {
+            background-color: #a67041;
+        }
+
+        /* Movements Table */
+        .table-section {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .table-header h2 {
+            color: var(--wood-dark);
+            font-size: 1.8rem;
+        }
+
+        .btn-pdf {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            font-size: 1rem;
+            margin-right: auto;
+        }
+
+        .btn-pdf:hover {
+            background-color: #a67041;
+        }
+
+        .movement-type {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .movement-entrada {
+            background-color: #e8f5e9;
+            color: var(--success);
+        }
+
+        .movement-salida {
+            background-color: #ffebee;
+            color: var(--danger);
+        }
+
+        .movement-compra {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .movement-devolucion {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .movement-ajuste {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--wood-light);
+        }
+
+        th {
+            background-color: var(--wood-light);
+            font-weight: 600;
+            color: var(--wood-dark);
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background-color: var(--wood-light);
+        }
+
+        .stock-change {
+            font-weight: 600;
+        }
+
+        .stock-positive {
+            color: var(--success);
+        }
+
+        .stock-negative {
+            color: var(--danger);
+        }
+
+        .no-movements {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        /* Messages */
+        .messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .message {
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .message-success { background-color: #e8f5e9; color: var(--success); border: 1px solid #a5d6a7; }
+        .message-error { background-color: #ffebee; color: var(--danger); border: 1px solid #ef9a9a; }
+
+        /* Ver Detail Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(62, 39, 35, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-dialog {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-dialog {
+            transform: scale(1);
+        }
+        .modal-title {
+            color: var(--wood-dark);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--wood-light);
+        }
+        .detail-label {
+            font-weight: 600;
+            color: var(--wood-dark);
+        }
+        .detail-value {
+            color: var(--text-dark);
+        }
+        .btn-ver {
+            background: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .btn-ver:hover {
+            background: #a67041;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .modal-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            max-width: 180px;
+        }
+        .modal-btn-no {
+            background: var(--wood-light);
+            color: var(--text-dark);
+        }
+        .modal-btn-no:hover {
+            background: var(--wood-medium);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <!-- Messages -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <header>
+        <div class="logo">TechStore</div>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Inicio</a>
+            <a href="{% url 'vendor_dashboard' %}" >Dashboard</a>
+            <a href="{% url 'vendor_movimientos' %}">Movimientos</a>
+            <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="welcome-banner">
+            <h1>Control de Movimientos de Stock</h1>
+            <p>Registra entradas y salidas para mantener actualizado tu inventario</p>
+        </div>
+
+        <!-- Formulario Nuevo Movimiento -->
+        <div class="form-section">
+            <h2>📦 Nuevo Movimiento</h2>
+            <form method="post" class="movement-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="product_id">Producto:</label>
+                    <select name="product_id" id="product_id" required>
+                        <option value="">Selecciona un producto</option>
+                        {% for product in products %}
+                            <option value="{{ product.id }}">
+                                {{ product.name }} (Stock: {{ product.stock }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Movimiento:</label>
+                    <select name="movement_type" required>
+                        <option value="">Selecciona tipo</option>
+                        <option value="entrada">📈 Entrada (Inventario)</option>
+                        <option value="salida">📉 Salida (Venta)</option>
+                        <option value="compra">🛒 Compra (Cliente)</option>
+                        <option value="devolucion">🔄 Devolución</option>
+                        <option value="ajuste">⚙️ Ajuste de Inventario</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Cantidad:</label>
+                    <input type="number" name="quantity" id="quantity" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="supplier_nit">NIT Proveedor (validación DIAN):</label>
+                    <input type="text" name="supplier_nit" id="supplier_nit" placeholder="9001234567" maxlength="15">
+                    <small style="color: #666; font-size: 0.8rem;">Sin guiones. Se validará contra DIAN.</small>
+                </div>
+                <div class="form-group">
+                    <label for="reason">Motivo (opcional):</label>
+                    <textarea name="reason" id="reason" placeholder="Ej: Compra a proveedor, Venta directa, Devolución..."></textarea>
+                </div>
+                <button type="submit" class="btn-registrar">Registrar Movimiento</button>
+            </form>
+        </div>
+
+        <!-- Filtros de Búsqueda -->
+        <div class="form-section">
+            <h2>🔍 Filtros de Búsqueda</h2>
+            <form method="get" class="movement-form">
+                <div class="form-group">
+                    <label for="search">Buscar:</label>
+                    <input type="text" name="search" id="search" value="{{ search_query|default:'' }}" placeholder="Producto, motivo u orden...">
+                </div>
+                <div class="form-group">
+                    <label for="movement_type">Tipo de Movimiento:</label>
+                    <select name="movement_type" id="movement_type">
+                        <option value="">Todos</option>
+                        <option value="entrada" {% if movement_type_filter == 'entrada' %}selected{% endif %}>Entrada (Inventario)</option>
+                        <option value="salida" {% if movement_type_filter == 'salida' %}selected{% endif %}>Salida (Venta)</option>
+                        <option value="compra" {% if movement_type_filter == 'compra' %}selected{% endif %}>Compra (Cliente)</option>
+                        <option value="devolucion" {% if movement_type_filter == 'devolucion' %}selected{% endif %}>Devolución</option>
+                        <option value="ajuste" {% if movement_type_filter == 'ajuste' %}selected{% endif %}>Ajuste de Inventario</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product">Producto:</label>
+                    <select name="product" id="product">
+                        <option value="">Todos</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}" {% if product_filter == product.id|stringformat:'s' %}selected{% endif %}>{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">Categoría:</label>
+                    <select name="category" id="category">
+                        <option value="">Todas</option>
+                        <option value="celular" {% if category_filter == 'celular' %}selected{% endif %}>Celulares</option>
+                        <option value="tv" {% if category_filter == 'tv' %}selected{% endif %}>Televisores</option>
+                        <option value="parlante" {% if category_filter == 'parlante' %}selected{% endif %}>Parlantes</option>
+                        <option value="audifonos" {% if category_filter == 'audifonos' %}selected{% endif %}>Audífonos</option>
+                        <option value="smartwatch" {% if category_filter == 'smartwatch' %}selected{% endif %}>Smartwatches</option>
+                        <option value="cargador" {% if category_filter == 'cargador' %}selected{% endif %}>Cargadores</option>
+                        <option value="cable" {% if category_filter == 'cable' %}selected{% endif %}>Cables</option>
+                        <option value="tablet" {% if category_filter == 'tablet' %}selected{% endif %}>Tablets</option>
+                        <option value="laptop" {% if category_filter == 'laptop' %}selected{% endif %}>Laptops</option>
+                        <option value="accesorio" {% if category_filter == 'accesorio' %}selected{% endif %}>Accesorios</option>
+                        <option value="otro" {% if category_filter == 'otro' %}selected{% endif %}>Otros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="supplier_nit">NIT Proveedor:</label>
+                    <input type="text" name="supplier_nit" id="supplier_nit" value="{{ supplier_nit_filter|default:'' }}" placeholder="9001234567">
+                </div>
+                
+                <div class="form-group">
+                    <label for="date_from">Desde:</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ date_from|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="date_to">Hasta:</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ date_to|default:'' }}">
+                </div>
+                <button type="submit" class="btn-registrar">🔍 Buscar</button>
+                <a href="{% url 'vendor_movimientos' %}" class="btn-registrar" style="background-color: #666; text-align: center; text-decoration: none;">🧹 Limpiar</a>
+            </form>
+        </div>
+
+        <!-- Tabla de Movimientos Recientes -->
+        <div class="table-section">
+            <div class="table-header">
+                <h2>📋 Últimos Movimientos</h2>
+                {% with request.GET.urlencode as qs %}<a href="{% url 'vendor_movimientos_pdf' %}{% if qs %}?{{ qs }}{% endif %}" class="btn-pdf" target="_blank">📄 Generar PDF</a>{% endwith %}
+                <span>{% if movements %}{{ movements|length }} registros{% else %}Sin movimientos{% endif %}</span>
+            </div>
+            
+            {% if movements %}
+                <table>
+                    <thead>
+                        <tr>
+<th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Stock Anterior</th>
+                                <th>Stock Nuevo</th>
+                                <th>Proveedor (Ciudad)</th>
+                                <th>Pedido</th>
+<th>Motivo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement in movements %}
+                            <tr>
+                                <td>{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ movement.product.name|default:movement.reason|truncatechars:20 }}</td>
+                                <td><span class="movement-type movement-{{ movement.movement_type }}">{{ movement.get_movement_type_display }}</span></td>
+                                <td class="stock-change {% if movement.movement_type == 'entrada' %}stock-positive{% else %}stock-negative{% endif %}">
+                                    {% if movement.movement_type == 'entrada' or movement.movement_type == 'devolucion' %}+{% endif %}{{ movement.quantity }}
+                                </td>
+                                <td>{{ movement.stock_before|default:"-" }}</td>
+                                <td><strong>{{ movement.stock_after }}</strong></td>
+                                <td>{% if movement.supplier_nit %}{{ movement.supplier_name|default:movement.supplier_nit|default:"-" }}{% if movement.supplier_city %} ({{ movement.supplier_city }}/{{ movement.supplier_department }}){% endif %}{% else %}-{% endif %}</td>
+                                <td>{% if movement.order %}<a href="{% url 'order_detail' movement.order.id %}">#{{ movement.order.id }}</a>{% else %}-{% endif %}</td>
+                                <td>{{ movement.reason|default:"-"|truncatechars:25 }}</td>
+                                <td>
+                                    <button class="btn-ver" data-movement="{{ movement.id }}" data-product="{{ movement.product.name|default:'N/A' }}" data-type="{{ movement.get_movement_type_display }}" data-quantity="{{ movement.quantity }}" data-before="{{ movement.stock_before|default:'N/A' }}" data-after="{{ movement.stock_after|default:'N/A' }}" data-supplier="{{ movement.supplier_name|default:movement.supplier_nit|default:'N/A' }}" data-city="{{ movement.supplier_city|default:'' }}" data-dept="{{ movement.supplier_department|default:'' }}" data-order="{% if movement.order %}#{{ movement.order.id }}{% else %}N/A{% endif %}" data-reason="{{ movement.reason|default:'Sin motivo' }}" data-date="{{ movement.created_at|date:'d/m/Y H:i' }}" title="Ver detalle completo">👁️ Ver</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="no-movements">
+                    <h3>No hay movimientos registrados</h3>
+                    <p>¡Registra tu primer movimiento usando el formulario de arriba!</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Ver Movement Detail Modal -->
+    <div id="movement-modal" class="modal-overlay">
+        <div class="modal-dialog">
+            <h2 class="modal-title">👁️ Detalle del Movimiento</h2>
+            <div id="movement-detail-content">
+                <!-- Content populated by JS -->
+            </div>
+            <div class="modal-buttons">
+                <button id="close-movement-modal" class="modal-btn modal-btn-no">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide messages
+        setTimeout(() => {
+            document.querySelectorAll('.message').forEach(msg => {
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 300);
+            });
+        }, 5000);
+
+// Prevent negative values in quantities
+        const quantityInput = document.getElementById('quantity');
+        if (quantityInput) {
+            quantityInput.addEventListener('input', function() {
+                if (parseInt(this.value) < 0) {
+                    this.value = Math.abs(parseInt(this.value));
+                }
+            });
+            quantityInput.addEventListener('blur', function() {
+                if (parseInt(this.value) < 0 || isNaN(parseInt(this.value))) {
+                    this.value = Math.abs(parseInt(this.value)) || 1;
+                }
+            });
+        }
+
+        // Movement detail modal
+        const movementModal = document.getElementById('movement-modal');
+        const movementDetailContent = document.getElementById('movement-detail-content');
+        const closeMovementModal = document.getElementById('close-movement-modal');
+        const btnVers = document.querySelectorAll('.btn-ver');
+
+        btnVers.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const data = this.dataset;
+                movementDetailContent.innerHTML = `
+                    <div class="detail-item">
+                        <span class="detail-label">Producto:</span>
+                        <span class="detail-value">${data.product}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Tipo:</span>
+                        <span class="detail-value">${data.type}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Cantidad:</span>
+                        <span class="detail-value">${data.quantity}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Stock Anterior:</span>
+                        <span class="detail-value">${data.before}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Stock Nuevo:</span>
+                        <span class="detail-value">${data.after}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proveedor:</span>
+                        <span class="detail-value">${data.supplier}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ciudad/Dept:</span>
+                        <span class="detail-value">${data.city || ''} / ${data.dept || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Pedido:</span>
+                        <span class="detail-value">${data.order}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Fecha:</span>
+                        <span class="detail-value">${data.date}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Motivo:</span>
+                        <span class="detail-value">${data.reason}</span>
+                    </div>
+                `;
+                movementModal.classList.add('active');
+            });
+        });
+
+        closeMovementModal.addEventListener('click', () => {
+            movementModal.classList.remove('active');
+        });
+
+        movementModal.addEventListener('click', (e) => {
+            if (e.target === movementModal) {
+                movementModal.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

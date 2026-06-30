@@ -1,0 +1,323 @@
+<!-- Modal: Eliminar pedido -->
+<style>
+  .delete-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+  }
+
+  .delete-modal-overlay.active {
+    display: flex;
+  }
+
+  .delete-modal-card {
+    width: 100%;
+    max-width: 560px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  /* Animación de aparición */
+  .delete-modal-overlay.active .delete-modal-card {
+    animation: deleteModalIn 180ms ease forwards;
+  }
+
+  @keyframes deleteModalIn {
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .delete-modal-header {
+    padding: 18px 20px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .delete-modal-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244, 67, 54, 0.12);
+    border: 1px solid rgba(244, 67, 54, 0.35);
+    color: #c62828;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .delete-modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--wood-dark, #3e2723);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .delete-modal-close {
+    margin-left: auto;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: #444;
+    font-size: 18px;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  .delete-modal-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .delete-modal-body {
+    padding: 0 20px 16px;
+  }
+
+  .delete-modal-message {
+    margin: 0;
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .delete-modal-error {
+    margin: 0 20px 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(244, 67, 54, 0.08);
+    border: 1px solid rgba(244, 67, 54, 0.25);
+    color: #b71c1c;
+    display: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .delete-modal-error.active {
+    display: block;
+  }
+
+  .delete-modal-actions {
+    display: flex;
+    gap: 12px;
+    padding: 0 20px 20px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .delete-btn {
+    border-radius: 12px;
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  }
+
+  .delete-btn:active {
+    transform: translateY(1px);
+  }
+
+  .delete-btn-danger {
+    background: #f44336;
+    color: #fff;
+  }
+
+  .delete-btn-danger:hover {
+    background: #d32f2f;
+  }
+
+  .delete-btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+    border-color: #d6d6d6;
+  }
+
+  .delete-btn-secondary:hover {
+    background: #d5d5d5;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .delete-modal-actions {
+      justify-content: stretch;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .delete-btn {
+      flex: 1;
+    }
+
+    .delete-modal-header {
+      padding: 16px 16px 10px;
+    }
+
+    .delete-modal-body {
+      padding: 0 16px 16px;
+    }
+
+    .delete-modal-error {
+      margin-left: 16px;
+      margin-right: 16px;
+    }
+  }
+</style>
+
+<div class="delete-modal-overlay" id="deleteOrderModal" aria-hidden="true">
+  <div class="delete-modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteOrderTitle">
+    <div class="delete-modal-header">
+      <div class="delete-modal-icon">⚠️</div>
+      <h2 class="delete-modal-title" id="deleteOrderTitle">Eliminar pedido</h2>
+      <button type="button" class="delete-modal-close" aria-label="Cerrar" id="deleteModalCloseBtn">✖</button>
+    </div>
+
+    <div class="delete-modal-body">
+      <p class="delete-modal-message">¿En verdad quieres eliminar este pedido? No podrás volver a verlo.</p>
+    </div>
+
+    <p class="delete-modal-error" id="deleteOrderErrorMessage"></p>
+
+    <div class="delete-modal-actions">
+      <button type="button" class="delete-btn delete-btn-secondary" id="cancelDeleteOrderBtn">Cancelar</button>
+      <button type="button" class="delete-btn delete-btn-danger" id="confirmDeleteOrderBtn">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function initDeleteModalSnippet() {
+    const overlay = document.getElementById('deleteOrderModal');
+    const closeBtn = document.getElementById('deleteModalCloseBtn');
+    const cancelBtn = document.getElementById('cancelDeleteOrderBtn');
+    const confirmBtn = document.getElementById('confirmDeleteOrderBtn');
+    const errorEl = document.getElementById('deleteOrderErrorMessage');
+
+    if (!overlay || !confirmBtn) return;
+
+    let orderIdToDelete = null;
+
+    function setError(message) {
+      if (!errorEl) return;
+      errorEl.textContent = message || '';
+      errorEl.classList.toggle('active', !!(message || '').trim());
+    }
+
+    function clearError() {
+      if (!errorEl) return;
+      errorEl.textContent = '';
+      errorEl.classList.remove('active');
+    }
+
+    function openDeleteModal(orderId, ev) {
+      if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+      if (!orderId) return;
+
+      orderIdToDelete = Number(orderId);
+      if (Number.isNaN(orderIdToDelete) || orderIdToDelete <= 0) return;
+
+      clearError();
+      overlay.classList.add('active');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('delete-modal-open');
+    }
+
+    function closeDeleteModal() {
+      orderIdToDelete = null;
+      overlay.classList.remove('active');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('delete-modal-open');
+      clearError();
+    }
+
+    // Exponer para compatibilidad con el inline onclick existente.
+    window.openDeleteModal = openDeleteModal;
+
+    closeBtn?.addEventListener('click', closeDeleteModal);
+    cancelBtn?.addEventListener('click', closeDeleteModal);
+
+    // Click fuera del modal
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeDeleteModal();
+    });
+
+    // ESC
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('active')) {
+        closeDeleteModal();
+      }
+    });
+
+    function getCsrfFromCookie(cookieName) {
+      const cookies = document.cookie ? document.cookie.split(';') : [];
+      for (let i = 0; i < cookies.length; i++) {
+        const c = cookies[i].trim();
+        if (c.startsWith(cookieName + '=')) {
+          return decodeURIComponent(c.substring(cookieName.length + 1));
+        }
+      }
+      return '';
+    }
+
+    confirmBtn.addEventListener('click', async function () {
+      if (!orderIdToDelete) return;
+
+      confirmBtn.disabled = true;
+      confirmBtn.style.opacity = '0.7';
+      clearError();
+
+      const csrf = getCsrfFromCookie('csrftoken');
+
+      try {
+        const url = '{% url "order_delete" order_id=0 %}'.replace('/0', '/' + orderIdToDelete + '/');
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: new URLSearchParams({}),
+        });
+
+        let data = null;
+        try {
+          data = await res.json();
+        } catch (e) {
+          data = null;
+        }
+
+        if (!res.ok || !data || !data.ok) {
+          const msg = (data && data.message) ? data.message : 'No se pudo eliminar el pedido.';
+          setError(msg);
+          return;
+        }
+
+        // OK
+        closeDeleteModal();
+        const card = document.querySelector(`[data-order-id="${orderIdToDelete}"]`);
+        if (card) card.remove();
+      } catch (e) {
+        setError('No se pudo eliminar el pedido.');
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.style.opacity = '1';
+      }
+    });
+  })();
+</script>
+

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Paleta de colores amaderados y cálidos */
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .login-container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 1000px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(62, 39, 35, 0.1);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .marketing-panel {
+            background: linear-gradient(135deg, rgba(62, 39, 35, 0.9), rgba(109, 76, 65, 0.9)), 
+                        url('https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=1000&auto=format&fit=crop') center/cover;
+            width: 45%;
+            padding: 50px 40px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .marketing-panel h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .marketing-panel p {
+            font-size: 1rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .benefit-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .benefit-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .benefit-list li::before {
+            content: "✓";
+            background-color: var(--wood-accent);
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-panel {
+            width: 55%;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-panel h3 {
+            font-size: 1.8rem;
+            color: var(--wood-dark);
+            margin-bottom: 10px;
+        }
+
+        .form-panel > p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--wood-medium);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--wood-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.1);
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 10px;
+        }
+
+        .cta-button:hover {
+            background-color: #a67041;
+        }
+
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        .register-link a {
+            color: var(--wood-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+            }
+            .marketing-panel {
+                width: 100%;
+                padding: 40px 30px;
+            }
+            .form-panel {
+                width: 100%;
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="marketing-panel">
+            <h2>Bienvenido de nuevo</h2>
+            <p>Accede a tu cuenta y sigue disfrutando de los mejores productos tecnológicos.</p>
+            
+            <ul class="benefit-list">
+                <li>🎁 Acceso a ofertas exclusivas</li>
+                <li>🛡️ Historial de compras seguro</li>
+                <li>🚚 Seguimiento de tus pedidos</li>
+            </ul>
+        </div>
+
+        <div class="form-panel">
+            <h3>Inicia sesión</h3>
+            <p>Ingresa tus credenciales para continuar.</p>
+
+            {% if form.errors %}
+            <div class="error-message">
+                Tu nombre de usuario o contraseña son incorrectos. Por favor intenta de nuevo.
+            </div>
+            {% endif %}
+
+            <form action="{% url 'login' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_username">Nombre de usuario</label>
+                    <input type="text" id="id_username" name="username" placeholder="Tu nombre de usuario" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Contraseña</label>
+                    <input type="password" id="id_password" name="password" placeholder="Tu contraseña" required>
+                </div>
+
+                <button type="submit" class="cta-button">Iniciar Sesión</button>
+            </form>
+
+            <div class="register-link">
+                ¿No tienes una cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>
+            </div>
+            
+            <div class="register-link" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                ¿Quieres vender en TechStore? <a href="{% url 'vendor_register' %}">Regístrate como vendedor</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

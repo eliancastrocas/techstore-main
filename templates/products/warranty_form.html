@@ -1,0 +1,1017 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Soporte TechStore | Garantía y Reparación</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #2c1810;
+            --wood-medium: #5d3a2a;
+            --wood-light: #e8d5c4;
+            --wood-accent: #c08552;
+            --bg-color: #f9f6f2;
+            --text-dark: #1a120b;
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --shadow-soft: 0 8px 32px rgba(0,0,0,0.08);
+            --shadow-hover: 0 20px 60px rgba(0,0,0,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #f9f6f2 0%, #f0e6db 50%, #e8ddd2 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 70px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--wood-dark) 0%, #3a2218 100%);
+            position: fixed;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+        }
+
+        .sidebar:hover, .sidebar.expanded {
+            width: 220px;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+        }
+
+        .sidebar-brand span {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--wood-accent);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-brand span, .sidebar.expanded .sidebar-brand span {
+            opacity: 1;
+        }
+
+        .nav-a {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 56px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            gap: 18px;
+            margin: 4px 8px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--wood-accent), transparent);
+            transition: width 0.3s ease;
+            opacity: 0.3;
+        }
+
+        .nav-a:hover::before {
+            width: 100%;
+        }
+
+        .nav-a:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .nav-a .nav-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .nav-a .nav-label, .sidebar.expanded .nav-a .nav-label {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+            min-width: 30px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* ========== MAIN ========== -->
+        .main {
+            margin-left: 70px;
+            padding: 0;
+            transition: margin-left 0.4s ease;
+        }
+
+        .sidebar:hover + .main, .sidebar.expanded + .main {
+            margin-left: 220px;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            background: linear-gradient(135deg, var(--wood-dark) 0%, #4a2c1d 50%, var(--wood-medium) 100%);
+            padding: 60px 40px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '🔧';
+            position: absolute;
+            right: -30px;
+            top: -30px;
+            font-size: 15rem;
+            opacity: 0.06;
+            transform: rotate(-15deg);
+        }
+
+        .hero::after {
+            content: '⚡';
+            position: absolute;
+            left: 10%;
+            bottom: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+            transform: rotate(10deg);
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(192, 133, 82, 0.2);
+            border: 1px solid var(--wood-accent);
+            color: var(--wood-accent);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero h1 {
+            color: var(--white);
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            color: var(--wood-accent);
+            position: relative;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.75);
+            font-size: 1.1rem;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        /* ========== SERVICE CARDS ========== */
+        .services-section {
+            max-width: 1100px;
+            margin: -40px auto 0;
+            padding: 0 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .service-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--wood-accent);
+        }
+
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        .service-icon::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            border: 2px dashed var(--wood-accent);
+            opacity: 0;
+            transition: all 0.4s ease;
+            animation: none;
+        }
+
+        .service-card:hover .service-icon::after {
+            opacity: 0.4;
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .icon-1 { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+        .icon-2 { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+        .icon-3 { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+        .icon-4 { background: linear-gradient(135deg, #fce4ec, #f8bbd9); }
+
+        .service-card h3 {
+            color: var(--wood-dark);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .service-card p {
+            color: #777;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        /* ========== CONTENT AREA ========== */
+        .content-area {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 0 30px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            color: var(--wood-dark);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        /* ========== STEPS ========== */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        /* ========== DEVICE & PROBLEM (WARRANTY FORM) ========== */
+        .warranty-device-problem .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .warranty-device-problem .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--wood-dark);
+            font-size: 0.9rem;
+        }
+
+        .warranty-device-problem .form-group {
+            margin-bottom: 24px;
+        }
+
+        /* Forzar orden label arriba y control debajo */
+        .warranty-device-problem .warranty-device-problem-control,
+        .warranty-device-problem .input-icon {
+            display: block;
+        }
+
+        .warranty-device-problem .form-control-custom,
+        .warranty-device-problem .form-control {
+            width: 100% !important;
+            padding: 16px 20px;
+            border: 2px solid #e8ddd2;
+            border-radius: 14px;
+            background: var(--white);
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            color: var(--text-dark);
+        }
+
+        .warranty-device-problem textarea.form-control-custom,
+        .warranty-device-problem textarea.form-control {
+            min-height: 140px;
+            resize: vertical;
+            padding: 18px 20px;
+        }
+
+        .warranty-device-problem .form-control-custom:hover,
+        .warranty-device-problem .form-control:hover {
+            border-color: var(--wood-accent);
+        }
+
+        .warranty-device-problem .form-control-custom:focus,
+        .warranty-device-problem .form-control:focus {
+            outline: none;
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 4px rgba(192, 133, 82, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .warranty-device-problem .input-icon {
+            position: relative;
+        }
+
+        .warranty-device-problem .input-icon .icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.6;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .warranty-device-problem .input-icon .form-control-custom {
+            padding-left: 50px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--white);
+            border-radius: 50px;
+            box-shadow: var(--shadow-soft);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--wood-dark);
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: linear-gradient(135deg, var(--wood-accent), #a67041);
+            color: var(--white);
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* ========== FORM ========== */
+        .form-wrapper {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--wood-accent), var(--wood-medium), var(--wood-accent));
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(192, 133, 82, 0.2);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--wood-dark);
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--wood-accent);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ========== CONTACT SECTION (WARRANTY FORM) ========== */
+        .contact-section {
+            padding: 6px 0 0;
+        }
+
+        /* Contenedor exclusivo para evitar afectar otras secciones */
+        .warranty-contact {
+            width: 100%;
+        }
+
+        .warranty-contact .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .warranty-contact .contact-card {
+            background: rgba(255,255,255,0.65);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(192, 133, 82, 0.22);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+
+        .warranty-contact .contact-card-wide {
+            grid-column: 1 / -1;
+        }
+
+        .warranty-contact .contact-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .warranty-contact .contact-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(192, 133, 82, 0.15);
+            border: 1px solid rgba(192, 133, 82, 0.25);
+            font-size: 1.25rem;
+            flex: 0 0 auto;
+        }
+
+        .warranty-contact .contact-card-title {
+            font-weight: 800;
+            color: var(--wood-dark);
+            font-size: 0.98rem;
+            line-height: 1.2;
+        }
+
+        /* Márgenes/espaciados consistentes dentro de esta sección */
+        .warranty-contact .form-group {
+            margin-bottom: 16px;
+        }
+
+        .warranty-contact .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .warranty-contact .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--wood-dark);
+            font-size: 0.9rem;
+        }
+
+        /* Inputs generados por Django Forms */
+        .warranty-contact .contact-card .form-control-custom {
+            width: 100% !important;
+            padding: 16px 20px;
+            border: 2px solid #e8ddd2;
+            border-radius: 14px;
+            background: var(--white);
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            color: var(--text-dark);
+        }
+
+        .warranty-contact .contact-card textarea.form-control-custom {
+            min-height: 60px;
+            resize: vertical;
+            padding: 18px 20px;
+        }
+
+        .warranty-contact .contact-card .form-control-custom:hover {
+            border-color: var(--wood-accent);
+        }
+
+        .warranty-contact .contact-card .form-control-custom:focus {
+            outline: none;
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 4px rgba(192, 133, 82, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Icon + input */
+        .warranty-contact .contact-card .input-icon {
+            position: relative;
+        }
+
+        .warranty-contact .contact-card .input-icon .icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.6;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .warranty-contact .contact-card .input-icon .form-control-custom {
+            padding-left: 50px;
+        }
+
+        /* ========== FILE UPLOAD ========== */
+        .file-upload {
+            border: 2px dashed #d7ccc8;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255,255,255,0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload:hover {
+            border-color: var(--wood-accent);
+            background: rgba(192, 133, 82, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .file-upload.dragover {
+            border-color: var(--wood-accent);
+            background: rgba(192, 133, 82, 0.15);
+            box-shadow: 0 4px 20px rgba(192, 133, 82, 0.2);
+        }
+
+        .file-upload-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .file-upload p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .file-upload small {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .file-preview {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #eee;
+        }
+
+        /* ========== BUTTON ========== */
+        .btn-submit {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--wood-accent), #a67041);
+            color: var(--white);
+            border: none;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 16px;
+            box-shadow: 0 4px 20px rgba(192, 133, 82, 0.3);
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(192, 133, 82, 0.5);
+        }
+
+        /* ========== TRUST BADGES ========== */
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            padding: 30px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .trust-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .trust-item .icon {
+            font-size: 2.2rem;
+        }
+
+        .trust-item span {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--wood-dark);
+        }
+
+        /* ========== ANIMATIONS & RESPONSIVE ========== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.7s ease forwards;
+            opacity: 0;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+
+        @media (max-width: 768px) {
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: 1fr; gap: 20px; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2.2rem; }
+            .steps { flex-wrap: wrap; gap: 10px; }
+            .trust-badges { flex-direction: column; gap: 24px; }
+            .main { margin-left: 0 !important; }
+            .sidebar { display: none; }
+            .form-wrapper { padding: 30px 20px; }
+        }
+
+
+        @media (max-width: 480px) {
+            .hero { padding: 40px 20px 60px; }
+            .services-section { padding: 0 20px; }
+            .content-area { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <span>🔧 TechStore</span>
+    </div>
+    <a href="{% url 'home' %}" class="nav-a"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+    <a href="{% url 'product_catalog' %}" class="nav-a"><span class="nav-icon">📱</span><span class="nav-label">Catálogo</span></a>
+    <a href="{% url 'services_catalog' %}" class="nav-a"><span class="nav-icon">🔧</span><span class="nav-label">Servicios</span></a>
+    <a href="{% url 'order_list' %}" class="nav-a"><span class="nav-icon">🛒</span><span class="nav-label">Mis Compras</span></a>
+    <a href="{% url 'cart_detail' %}" class="nav-a"><span class="nav-icon">🛍️</span><span class="nav-label">Carrito</span></a>
+    <a href="{% url 'edit_profile' %}" class="nav-a"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span></a>
+    <a href="{% url 'logout' %}" class="nav-a"><span class="nav-icon">🚪</span><span class="nav-label">Cerrar Sesión</span></a>
+</div>
+
+<div class="main">
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content animate-in delay-1">
+            <div class="hero-badge">⚡ Soporte Técnico Certificado</div>
+            <h1>Solicitar <span>Garantía</span> o Reparación</h1>
+            <p>Describe tu problema y nuestro equipo técnico te contactará en menos de 24 horas para coordinar la solución.</p>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="services-section">
+        <div class="services-grid">
+            <div class="service-card animate-in delay-2">
+                <div class="service-icon icon-1">🔍</div>
+                <h3>Diagnóstico Gratuito</h3>
+                <p>Evaluación completa sin costo inicial</p>
+            </div>
+            <div class="service-card animate-in delay-2">
+                <div class="service-icon icon-2">🛠️</div>
+                <h3>Reparación Rápida</h3>
+                <p>Entrega en 24-72 horas según complejidad</p>
+            </div>
+            <div class="service-card animate-in delay-3">
+                <div class="service-icon icon-3">🛡️</div>
+                <h3>Garantía Activada</h3>
+                <p>Cubre productos TechStore recientes</p>
+            </div>
+            <div class="service-card animate-in delay-4">
+                <div class="service-icon icon-4">📞</div>
+                <h3>Soporte Prioritario</h3>
+                <p>WhatsApp y llamada inmediata</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FORM -->
+    <div class="content-area">
+        <div class="section-header animate-in delay-3">
+            <h2>📋 Completa tu Solicitud</h2>
+            <p>Todos los campos son obligatorios excepto fotos. Te responderemos pronto.</p>
+        </div>
+
+        <div class="steps animate-in delay-4">
+            <div class="step active"><div class="step-number">1</div><span>Información personal</span></div>
+            <div class="step"><div class="step-number">2</div><span>Detalles del problema</span></div>
+            <div class="step"><div class="step-number">3</div><span>Envío y contacto</span></div>
+        </div>
+
+        <div class="form-wrapper animate-in">
+            <form method="POST" enctype="multipart/form-data" id="warrantyForm">
+                {% csrf_token %}
+
+                <!-- Sección 1: Información Personal -->
+                <div class="form-section contact-section warranty-contact">
+                    <div class="section-title">📞 Teléfono y WhatsApp</div>
+
+                    <div class="contact-grid" style="grid-template-columns: 1fr;">
+                        <div class="contact-card contact-card-wide">
+
+                            <div class="contact-card-header">
+                            </div>
+
+
+
+
+                        </div>
+
+                        <div class="contact-card contact-card-wide">
+                            <div class="contact-card-header">
+                                <span class="contact-icon">📞</span>
+                                <span class="contact-card-title">Teléfono y WhatsApp</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.phone.id_for_label }}">Teléfono / WhatsApp</label>
+                                <div class="input-icon">
+                                    <span class="icon">📞</span>
+                                    {{ form.phone }}
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+
+                <!-- Sección 2: Dispositivo y Problema -->
+                <div class="form-section warranty-device-problem">
+                    <div class="section-title">📱 Dispositivo y Problema</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="{{ form.device_model.id_for_label }}">Modelo exacto del dispositivo</label>
+                            <div class="input-icon">
+                                <span class="icon">📱</span>
+                                {{ form.device_model }}
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="{{ form.issue_description.id_for_label }}">Descripción detallada del problema</label>
+                            <div class="input-icon">
+                                {{ form.issue_description }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 3: Evidencias -->
+                <div class="form-section">
+                    <div class="section-title">📸 Fotos (opcional pero recomendado)</div>
+                    <div class="form-group full-width">
+                        <label for="{{ form.images.id_for_label }}">Sube fotos del problema</label>
+                        <div class="file-upload" id="fileUpload">
+                            <div class="file-upload-icon">📷</div>
+                            <p><strong>Haz clic o arrastra fotos aquí</strong></p>
+                            <small>Múltiples archivos • Máx 5MB total • JPG, PNG</small>
+                            <div class="file-preview" id="filePreview"></div>
+                            {{ form.images }}
+                        </div>
+                    </div>
+                </div>
+
+                {{ form.service_type }}
+                {{ form.issue_type }}
+                {{ form.service_option }}
+                {{ form.priority }}
+                {{ form.description }}
+
+                <button type="submit" class="btn-submit">
+                    🚀 Enviar Solicitud de Garantía
+                </button>
+            </form>
+        </div>
+
+        <!-- TRUST -->
+        <div class="trust-badges animate-in delay-4">
+            <div class="trust-item">
+                <span class="icon">⚡</span>
+                <span>Respuesta 24h</span>
+            </div>
+            <div class="trust-item">
+                <span class="icon">🔒</span>
+                <span>Garantía 100%</span>
+            </div>
+            <div class="trust-item">
+                <span class="icon">👨‍🔧</span>
+                <span>Expertos Certificados</span>
+            </div>
+            <div class="trust-item">
+                <span class="icon">💰</span>
+                <span>Presupuesto Gratis</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('{{ form.images.id_for_label }}');
+    const fileUpload = document.getElementById('fileUpload');
+    const filePreview = document.getElementById('filePreview');
+
+    // Click to upload
+    fileUpload.addEventListener('click', () => fileInput.click());
+
+    // Drag & drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        fileUpload.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileUpload.addEventListener(eventName, () => fileUpload.classList.add('dragover'));
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileUpload.addEventListener(eventName, () => fileUpload.classList.remove('dragover'));
+    });
+
+    fileUpload.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const files = e.dataTransfer.files;
+        fileInput.files = files;
+        handleFiles(files);
+    }
+
+    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+    function handleFiles(files) {
+        filePreview.innerHTML = '';
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                filePreview.appendChild(img);
+            } else {
+                const span = document.createElement('span');
+                span.textContent = file.name;
+                span.style.color = '#999';
+                filePreview.appendChild(span);
+            }
+        });
+    }
+
+    // Animate sidebar toggle
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.addEventListener('mouseenter', () => sidebar.classList.add('expanded'));
+        sidebar.addEventListener('mouseleave', () => sidebar.classList.remove('expanded'));
+    }
+});
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,607 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Pedido #{{ order.id }} | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--wood-accent);
+        }
+
+        .btn-home {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-home:hover {
+            background-color: #a67041;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--wood-dark);
+            font-size: 2rem;
+        }
+
+        .back-link {
+            color: var(--wood-medium);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            color: var(--wood-dark);
+        }
+
+        .order-info {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--wood-dark);
+        }
+
+        .order-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-processing {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-shipped {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-delivered {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .order-items {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .order-items h2 {
+            color: var(--wood-dark);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--wood-light);
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            background-color: var(--wood-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 2rem;
+            overflow: hidden;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: var(--wood-dark);
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .item-price {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .item-quantity {
+            text-align: center;
+            padding: 0 25px;
+        }
+
+        .item-quantity-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .item-quantity-value {
+            font-weight: 600;
+            color: var(--wood-dark);
+            font-size: 1.1rem;
+        }
+
+        .item-subtotal {
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .item-subtotal-value {
+            font-weight: 700;
+            color: var(--wood-accent);
+            font-size: 1.2rem;
+        }
+
+        .order-summary {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 1rem;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid var(--wood-light);
+            margin-top: 15px;
+            padding-top: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--wood-dark);
+        }
+
+        .success-message {
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .success-message h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            color: #666;
+        }
+
+        .tracking-container {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tracking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tracking-header h3 {
+            color: var(--wood-dark);
+            font-size: 1.2rem;
+        }
+
+        .tracking-days {
+            background: var(--wood-accent);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .tracking-bar {
+            height: 12px;
+            background: var(--wood-light);
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .tracking-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--wood-accent), #4caf50);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .tracking-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .tracking-step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .tracking-step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 3px;
+            background: var(--wood-light);
+            z-index: 0;
+        }
+
+        .tracking-step:last-child::after {
+            display: none;
+        }
+
+        .step-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--wood-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            position: relative;
+            z-index: 1;
+            font-size: 0.9rem;
+        }
+
+        .step-icon.active {
+            background: var(--wood-accent);
+            color: var(--white);
+        }
+
+        .step-icon.completed {
+            background: #4caf50;
+            color: var(--white);
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .step-label.active {
+            color: var(--wood-dark);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}" class="btn-home">Volver al Inicio</a>
+            <a href="{% url 'order_list' %}">Mis Compras</a>
+            <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Pedido #{{ order.id }}</h1>
+            <a href="{% url 'order_list' %}" class="back-link">← Volver a Mis Compras</a>
+        </div>
+
+        <div class="success-message">
+            <h3>¡Compra realizada con éxito!</h3>
+            <p>Gracias por tu compra. Puedes ver los detalles de tu pedido a continuación.</p>
+        </div>
+
+        {% if order.status != 'cancelled' %}
+        <div class="tracking-container">
+            <div class="tracking-header">
+                <h3>📦 Seguimiento de Envío</h3>
+                <span class="tracking-days">{{ order.get_delivery_status.message }}</span>
+            </div>
+            <div class="tracking-bar">
+                <div class="tracking-progress" style="width: {{ order.get_delivery_status.progress }}%;"></div>
+            </div>
+            <div class="tracking-steps">
+                <div class="tracking-step">
+                    <div class="step-icon {% if order.status != 'pending' %}completed{% endif %}">✓</div>
+                    <p class="step-label {% if order.status == 'pending' %}active{% endif %}">Pedido<br>Confirmado</p>
+                </div>
+                <div class="tracking-step">
+                    <div class="step-icon {% if order.status == 'processing' %}active{% elif order.status in 'shipped,delivered' %}completed{% endif %}">📋</div>
+                    <p class="step-label {% if order.status == 'processing' %}active{% endif %}">En<br>Procesamiento</p>
+                </div>
+                <div class="tracking-step">
+                    <div class="step-icon {% if order.status == 'shipped' %}active{% elif order.status == 'delivered' %}completed{% endif %}">🚚</div>
+                    <p class="step-label {% if order.status == 'shipped' %}active{% endif %}">En<br>Camino</p>
+                </div>
+                <div class="tracking-step">
+                    <div class="step-icon {% if order.status == 'delivered' %}completed{% endif %}">🏠</div>
+                    <p class="step-label {% if order.status == 'delivered' %}active{% endif %}">Entregado</p>
+                </div>
+            </div>
+            {% if order.status == 'shipped' %}
+            <p style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem;">
+                📅 Tu pedido fue enviado el {{ order.shipped_at|date:"d/m/Y" }} • 
+                {% if order.get_delivery_status.days == 0 %}
+                ¡Llega hoy!
+                {% elif order.get_delivery_status.days == 1 %}
+                Llega mañana
+                {% else %}
+                Estimado: {{ order.get_delivery_status.days }} días restantes
+                {% endif %}
+            </p>
+            {% endif %}
+            {% if order.status == 'delivered' %}
+            <p style="text-align: center; margin-top: 15px; color: #4caf50; font-size: 0.9rem;">
+
+                ✅ Tu pedido fue entregado el {{ order.updated_at|date:"d/m/Y" }}
+            </p>
+            {% if not is_vendedor and order.user == request.user %}
+
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'warranty_claim' order.id %}" class="btn btn-danger" style="background: #f44336; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                    📋 Solicitar Garantía
+                </a>
+            </div>
+            {% endif %}
+            {% endif %}
+
+
+
+        </div>
+        {% endif %}
+
+        <div class="order-info">
+        <div class="info-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div class="info-item">
+                    <p class="info-label">Fecha del pedido</p>
+                    <p class="info-value">{{ order.created_at|date:"d/m/Y" }}</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Estado</p>
+                    <span class="order-status status-{{ order.status }}">
+                        {% if order.status == 'pending' %}Pendiente
+                        {% elif order.status == 'processing' %}Procesando
+                        {% elif order.status == 'shipped' %}Enviado
+                        {% elif order.status == 'delivered' %}Entregado
+                        {% elif order.status == 'cancelled' %}Cancelado
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Pago</p>
+                    <p class="info-value">{{ order.get_payment_method_display }}</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Entrega</p>
+                    <p class="info-value">{{ order.get_delivery_type_display }}</p>
+                </div>
+                <div class="info-item" style="grid-column: span 2;">
+                    <p class="info-label">Total</p>
+                    <p class="info-value" style="font-size: 1.3rem;">{{ order.total|cop_format }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-items">
+            <h2>Productos y Servicios</h2>
+            {% for item in order.items.all %}
+            <div class="item-row">
+                <div class="item-image">
+                    {% if item.product %}
+                    {% if item.product.display_image %}
+                    <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}">
+                    {% else %}
+                    📦
+                    {% endif %}
+                    {% elif item.service %}
+                    {% if item.service.display_image %}
+                    <img src="{{ item.service.display_image }}" alt="{{ item.service.name }}">
+                    {% else %}
+                    🔧
+                    {% endif %}
+                    {% else %}
+                    📦
+                    {% endif %}
+                </div>
+                <div class="item-details">
+                    <p class="item-name">{{ item.item_name }}</p>
+                    <p class="item-price">{{ item.price|currency }} c/u</p>
+                    {% if item.service %}
+                    <p class="item-price" style="color: var(--wood-accent); font-size: 0.8rem;">Servicio</p>
+                    {% endif %}
+                </div>
+                <div class="item-quantity">
+                    <p class="item-quantity-label">Cantidad</p>
+                    <p class="item-quantity-value">{{ item.quantity }}</p>
+                </div>
+                <div class="item-subtotal">
+                    <p class="item-subtotal-value">{{ item.subtotal|currency }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="order-summary">
+            <div class="summary-row">
+                <span>Productos ({{ order.item_count }})</span>
+                <span>{{ order.item_count }} artículos</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span>{{ order.total|currency }}</span>
+            </div>
+        </div>
+    {% if order.status != 'delivered' %}
+        {% if is_vendedor %}
+        <div style="margin-top: 20px;">
+            <button
+                type="button"
+                class="delete-order-page-btn"
+                onclick="window.openDeleteOrderDetailModal('{% url 'order_delete_confirm' order.id %}')">
+                Eliminar pedido
+            </button>
+        </div>
+        {% endif %}
+
+
+        <style>
+          .delete-order-page-btn{
+            width: 100%;
+            max-width: 520px;
+            display: block;
+            margin: 0 auto;
+            background: #f44336;
+            color: #fff;
+            border: 0;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: transform 120ms ease, background 120ms ease;
+          }
+          .delete-order-page-btn:hover{ background:#d32f2f; }
+          .delete-order-page-btn:active{ transform: translateY(1px); }
+          @media (max-width: 520px){ .delete-order-page-btn{ max-width: 100%; } }
+        </style>
+
+        {% if is_vendedor %}
+        {% include "orders/_delete_order_detail_modal_snippet.html" %}
+        {% endif %}
+
+    {% endif %}
+
+</div>
+</body>
+</html>
+
+
+

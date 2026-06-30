@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Producto | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--wood-accent);
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .delete-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .delete-card h1 {
+            color: #c62828;
+            margin-bottom: 20px;
+        }
+
+        .delete-card p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--wood-dark);
+            margin-bottom: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-delete {
+            flex: 1;
+            padding: 15px;
+            background-color: #c62828;
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-delete:hover {
+            background-color: #b71c1c;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 15px;
+            background-color: var(--wood-medium);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background-color: var(--wood-dark);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'product_list' %}">Mis Productos</a>
+            <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="delete-card">
+            <h1>¿Eliminar Producto?</h1>
+            <p>¿Estás seguro de que deseas eliminar el siguiente producto?</p>
+            <p class="product-name">{{ product.name }}</p>
+            <p style="color: #888; font-size: 0.9rem;">Esta acción no se puede deshacer.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="button-group">
+                    <button type="submit" class="btn-delete">Sí, Eliminar</button>
+                    <a href="{% url 'product_list' %}" class="btn-cancel">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Reparación Rápida | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Material+Icons&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-shadow: 0 20px 40px rgba(62, 39, 35, 0.15);
+            --success: #4CAF50;
+            --danger: #f44336;
+            --warning: #ff9800;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(192,133,82,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(62,39,35,0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        header {
+            background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium));
+            padding: 1rem 5%;
+            box-shadow: 0 4px 20px rgba(62, 39, 35, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--wood-accent), #d4a574);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            background: linear-gradient(135deg, var(--wood-dark), var(--wood-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--wood-accent), transparent);
+            border-radius: 2px;
+        }
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+        .form-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--wood-accent), var(--success), var(--warning));
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .field-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--wood-medium);
+            font-size: 1.2rem;
+            z-index: 2;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--wood-dark);
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+        .form-control-custom, .form-control-custom:focus {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3.5rem !important;
+            border: 2px solid var(--wood-light);
+            border-radius: 15px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.8);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .form-control-custom:hover {
+            border-color: var(--wood-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(192,133,82,0.2);
+        }
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--wood-accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(192,133,82,0.15), 0 12px 35px rgba(192,133,82,0.2);
+            transform: translateY(-3px);
+        }
+        .form-control-custom::placeholder {
+            color: #999;
+            font-weight: 400;
+        }
+        textarea.form-control-custom {
+            padding-top: 1.4rem;
+            min-height: 140px;
+            resize: vertical;
+        }
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .file-input-wrapper input[type="file"] {
+            width: 100%;
+            padding: 1rem;
+            border: 2px dashed var(--wood-light);
+            border-radius: 15px;
+            background: rgba(247,247,247,0.8);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .file-input-wrapper input[type="file"]:hover {
+            border-color: var(--wood-accent);
+            background: white;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 1.3rem 2rem;
+            background: linear-gradient(135deg, var(--wood-accent), #d4a574);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(192,133,82,0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(192,133,82,0.5);
+        }
+        .btn-primary:active {
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--wood-medium);
+            font-weight: 500;
+            padding: 1rem 2rem;
+            border: 2px solid var(--wood-light);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn-secondary:hover {
+            background: var(--wood-light);
+            color: var(--wood-dark);
+            transform: translateY(-2px);
+        }
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(192,133,82,0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        .floating-circle:nth-child(1) { width: 80px; height: 80px; top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-circle:nth-child(2) { width: 50px; height: 50px; top: 60%; right: 15%; animation-delay: 2s; }
+        .floating-circle:nth-child(3) { width: 60px; height: 60px; bottom: 20%; left: 20%; animation-delay: 4s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        .progress-indicator {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--wood-light);
+            transition: all 0.3s ease;
+        }
+        .step.active {
+            background: var(--wood-accent);
+            transform: scale(1.3);
+            box-shadow: 0 0 0 4px rgba(192,133,82,0.3);
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            header {
+                padding: 1rem 5%;
+            }
+            .form-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+        }
+        .form-error {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 0 3px rgba(244,67,54,0.2) !important;
+        }
+        ul.errorlist {
+            list-style: none;
+            background: rgba(244,67,54,0.1);
+            border: 1px solid var(--danger);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0 0 0;
+            color: var(--danger);
+        }
+        ul.errorlist li {
+            margin: 0.25rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        ul.errorlist li::before {
+            content: '⚠️';
+            position: absolute;
+            left: 0;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(62, 39, 35, 0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 25px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(62, 39, 35, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+        .modal-card h3 {
+            color: var(--wood-dark);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .modal-card p {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .modal-btn {
+            padding: 0.9rem 1.5rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, var(--danger), #ef5350);
+            color: white;
+            box-shadow: 0 8px 20px rgba(244,67,54,0.3);
+        }
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(244,67,54,0.4);
+        }
+        .modal-btn-cancel {
+            background: var(--wood-light);
+            color: var(--wood-dark);
+            border: 2px solid var(--wood-light);
+        }
+        .modal-btn-cancel:hover {
+            background: var(--wood-medium);
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fas fa-tools"></i> TechStore Service
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'services_catalog' %}"><i class="fas fa-list"></i> Servicios</a>
+             <a href="{% url 'product_list' %}"><i class="fas fa-store"></i> Productos</a>
+        </nav>
+    </header>
+
+    <div class="hero-section">
+        <h1 class="hero-title">🔧 Solicitud de Reparación</h1>
+        <p class="hero-subtitle"> Diagnóstico gratuito • Costo accesible • Garantía en productos validos por la tienda</p>
+    </div>
+
+    <div class="floating-elements">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+
+    <div class="main-container">
+        <div class="form-card">
+            <div class="progress-indicator">
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="padding: 1rem; margin-bottom: 1.5rem; border-radius: 15px; text-align: center; font-weight: 600;">
+                        {% if message.tags == 'success' %}
+                            <div style="background: linear-gradient(135deg, #4CAF50, #81C784); color: white;">
+                                <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>
+                                {{ message }}
+                            </div>
+                        {% elif message.tags == 'error' %}
+                            <div style="background: linear-gradient(135deg, #f44336, #ef5350); color: white;">
+                                <i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem;"></i>
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {# Errores reales del form (útil para depurar) #}
+                {% if form.non_field_errors %}
+                    <ul class="errorlist" style="margin-bottom: 1.5rem;">
+                        {% for err in form.non_field_errors %}
+                            <li>{{ err }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {# Campos ocultos que el backend puede esperar (no se muestran) #}
+                {{ form.email }}
+                {{ form.customer_name }}
+                {{ form.service_type }}
+                {{ form.issue_type }}
+                {{ form.service_option }}
+                {{ form.priority }}
+                {{ form.description }}
+
+                <div class="form-row">
+
+                <div class="form-group">
+                        <label>📞 Teléfono</label>
+                        {{ form.phone }}
+                        <small style="display:block; color:#666; margin-top:0.5rem;">
+                            A este numero se contactará el vendedor en caso de algun problema
+                        </small>
+
+                        {% if form.phone.errors %}
+                            <div class="form-error" style="color: var(--danger); font-weight: 600; margin-top: .5rem;">
+                                {{ form.phone.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label>📱 Modelo del dispositivo</label>
+                        {{ form.device_model }}
+                        {% if form.device_model.errors %}
+                            <div class="form-error" style="color: var(--danger); font-weight: 600; margin-top: .5rem;">
+                                {{ form.device_model.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                <div class="form-group full-width">
+                    <label>🔍 Descripción detallada del problema</label>
+                    {{ form.issue_description }}
+                </div>
+
+                <div class="form-group full-width file-input-wrapper">
+                    <label>📸 Fotos del problema (opcional)</label>
+                    {{ form.images }}
+                    <small style="color: #666; font-size: 0.85rem;">Máximo 5 fotos, 5MB total. Ayudan mucho al diagnóstico técnico.</small>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-paper-plane"></i> Enviar Solicitud (Tiempo de respuesta: 24-48 horas)
+                </button>
+            </form>
+
+            <a href="{% url 'services_catalog' %}" class="btn-secondary" id="btnVolverServicios">
+                <i class="fas fa-arrow-left"></i> Volver a Servicios
+            </a>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalConfirmacion">
+        <div class="modal-card">
+            <h3><i class="fas fa-exclamation-circle" style="color: var(--warning);"></i> ¿En verdad quiere volver a servicios?</h3>
+            <p>Se le borrarán los datos ya escritos.</p>
+            <div class="modal-buttons">
+                <a href="{% url 'services_catalog' %}" class="modal-btn modal-btn-confirm">
+                    <i class="fas fa-check"></i> Sí, estoy seguro
+                </a>
+                <button class="modal-btn modal-btn-cancel" id="btnSeguirEditando">
+                    <i class="fas fa-pen"></i> Seguir editando
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-focus first field
+        document.querySelector('.form-control-custom')?.focus();
+
+        // Form validation feedback
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('.form-control-custom');
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('form-error');
+                }
+            });
+        });
+
+        document.querySelectorAll('.form-control-custom').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('form-error');
+            });
+        });
+
+        // Smooth animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.form-group').forEach(el => observer.observe(el));
+
+        // Modal de confirmación al volver a servicios
+        const modal = document.getElementById('modalConfirmacion');
+        const btnVolver = document.getElementById('btnVolverServicios');
+        const btnSeguir = document.getElementById('btnSeguirEditando');
+
+        btnVolver.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.classList.add('active');
+        });
+
+        btnSeguir.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

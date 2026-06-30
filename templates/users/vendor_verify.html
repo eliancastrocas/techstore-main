@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Código | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .verify-container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(62, 39, 35, 0.1);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--wood-light);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        h2 {
+            color: var(--wood-dark);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .vendor-info {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .vendor-info h4 {
+            color: var(--wood-dark);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .vendor-info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .vendor-info strong {
+            color: var(--wood-medium);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--wood-medium);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--wood-light);
+            border-radius: 10px;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 5px;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.1);
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .cta-button:hover {
+            background-color: #a67041;
+        }
+
+        .help-text {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .help-text a {
+            color: var(--wood-accent);
+            text-decoration: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .alert-info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="verify-container">
+        <div class="icon">🔐</div>
+        <h2>Verifica tu cuenta</h2>
+        <p class="subtitle">Ingresa el código de 6 dígitos que el administrador te ha enviado</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="vendor-info">
+            <h4>Información del registro:</h4>
+            <p><strong>Usuario:</strong> {{ profile.user.username }}</p>
+            <p><strong>Tienda:</strong> {{ profile.store_name }}</p>
+            <p><strong>Teléfono:</strong> {{ profile.phone }}</p>
+            <p><strong>Rol:</strong> {{ profile.get_subrole_display }}</p>
+        </div>
+
+        <form action="{% url 'vendor_verify' %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_code">Código de verificación</label>
+                <input type="text" id="id_code" name="code" placeholder="000000" maxlength="6" required>
+            </div>
+
+            <button type="submit" class="cta-button">Verificar cuenta</button>
+        </form>
+
+        <p class="help-text">
+            ¿No recibiste el código? El administrador lo recibió en WhatsApp.<br>
+            <a href="{% url 'vendor_register' %}">Volver al registro</a>
+        </p>
+    </div>
+
+</body>
+</html>
+

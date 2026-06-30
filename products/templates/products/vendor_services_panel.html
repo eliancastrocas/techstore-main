@@ -1,0 +1,713 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Servicios | TechStore (Vendedor)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+            --success: #4CAF50;
+            --danger: #f44336;
+            --warning: #ff9800;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); }
+
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { color: var(--white); font-size: 1.5rem; font-weight: 700; text-decoration: none; }
+        .nav-links { display: flex; gap: 30px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { color: var(--white); text-decoration: none; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--wood-accent); }
+
+        .container { max-width: 1200px; margin: 50px auto; padding: 0 20px; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .page-header h1 { color: var(--wood-dark); font-size: 2rem; }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .chip {
+            border: 1px solid rgba(192,133,82,0.35);
+            background: rgba(255,255,255,0.7);
+            padding: 8px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--wood-medium);
+        }
+        .chip.active { background: rgba(192,133,82,0.15); border-color: rgba(192,133,82,0.8); }
+
+        .requests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .request-card {
+            background-color: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--wood-accent);
+        }
+
+        .request-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+        .request-type { background: var(--wood-light); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; color: var(--wood-dark); }
+        .request-meta { font-size: 0.9rem; color: #666; display: flex; flex-direction: column; gap: 6px; }
+
+        .status-badge {
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .status-pending { background: rgba(255,193,7,0.18); color: #856404; border: 1px solid rgba(255,193,7,0.35); }
+        .status-reviewed { background: rgba(30,144,255,0.14); color: #0b4f9b; border: 1px solid rgba(30,144,255,0.3); }
+        .status-completed { background: rgba(76,175,80,0.14); color: #2e7d32; border: 1px solid rgba(76,175,80,0.3); }
+        .status-behavior { background: rgba(156,39,176,0.14); color: #6a1b9a; border: 1px solid rgba(156,39,176,0.28); }
+        .status-rejected { background: rgba(244,67,54,0.12); color: #b71c1c; border: 1px solid rgba(244,67,54,0.25); }
+
+
+        .request-body { display: flex; flex-direction: column; gap: 10px; }
+        .row { display: flex; justify-content: space-between; gap: 10px; }
+        .label { font-weight: 700; color: #444; }
+        .value { color: #333; overflow-wrap: anywhere; }
+
+        .request-actions { margin-top: 14px; display: flex; gap: 10px; }
+        .btn-details {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+            transition: transform 0.2s ease;
+        }
+        .btn-details:hover { transform: translateY(-2px); }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: #666; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(62,39,35,0.62);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 1000;
+            padding: 40px 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .modal-overlay.active { display: flex; }
+
+.modal-card {
+            width: 100%;
+            max-width: 720px;
+            background: var(--white);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+            max-height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+            margin-bottom: 14px;
+        }
+        .modal-header h2 { color: var(--wood-dark); font-size: 1.25rem; }
+        .modal-close {
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* Simple state modals */
+        .state-modal-card {
+            width: 100%;
+            max-width: 520px;
+            background: var(--white);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+        }
+
+        .state-modal-title {
+            color: var(--wood-dark);
+            font-size: 1.1rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .state-modal-text {
+            color: #222;
+            line-height: 1.5;
+            font-weight: 700;
+        }
+
+        .modal-item { background: rgba(215,204,200,0.25); border: 1px solid rgba(192,133,82,0.18); border-radius: 12px; padding: 12px; }
+        .modal-item .k { font-weight: 900; color: #3b2a23; font-size: 0.85rem; margin-bottom: 6px; }
+        .modal-item .v { color: #222; overflow-wrap: anywhere; font-size: 0.95rem; }
+        .modal-desc { margin-top: 12px; background: rgba(215,204,200,0.18); border: 1px solid rgba(192,133,82,0.18); border-radius: 12px; padding: 12px; }
+        .modal-desc .k { font-weight: 900; color: #3b2a23; font-size: 0.85rem; margin-bottom: 6px; }
+        .modal-desc .v { line-height: 1.6; color: #222; }
+
+        @media (max-width: 768px) {
+            .modal-grid { grid-template-columns: 1fr; }
+            header { padding: 16px 20px; }
+            .container { margin-top: 30px; }
+        }
+
+        /* Confirm modal variations */
+        .modal-content {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .modal-body {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 6px 2px;
+        }
+
+        .modal-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: rgba(255,152,0,0.15);
+            border: 1px solid rgba(255,152,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex: 0 0 auto;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-secondary {
+            background: rgba(0,0,0,0.06);
+            color: var(--wood-dark);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+    </style>
+</head>
+<body>
+<header>
+    <a href="{% url 'home' %}" class="logo">TechStore</a>
+    <nav class="nav-links">
+        <a href="{% url 'product_list' %}">Mis Productos</a>
+        <a href="{% url 'vendor_form_requests' %}">Solicitudes Clientes</a>
+        <a href="{% url 'home' %}">Inicio</a>
+        <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="page-header">
+        <h1>🔧 Panel de Servicios (Solicitudes de Clientes)</h1>
+        <div class="filters">
+            <span class="chip active">Reparación</span>
+            <span class="chip active">Mantenimiento</span>
+        </div>
+    </div>
+
+    {% if form_requests %}
+    <div class="requests-grid">
+        {% for fr in form_requests %}
+            {% with fr.service_option as opt %}
+            <div class="request-card">
+                <div class="request-header">
+                    <div>
+                        {% if fr.service_option == 'reparacion' %}
+                            <div class="request-type">🔧 Reparación</div>
+                        {% elif fr.service_option == 'mantenimiento' %}
+                            <div class="request-type">🛠️ Mantenimiento</div>
+                        {% else %}
+                            <div class="request-type">Servicio</div>
+                        {% endif %}
+                        <div class="request-meta">
+                            <div>📅 Enviado: <strong>{{ fr.created_at|date:"d/m/Y H:i" }}</strong></div>
+                            <div>👤 Cliente: <strong>{{ fr.customer_name }}</strong></div>
+                        </div>
+                    </div>
+
+                    <span class="status-badge {% if fr.status == 'pending' %}status-pending{% elif fr.status == 'reviewed' %}status-reviewed{% elif fr.status == 'completed' %}status-completed{% else %}status-pending{% endif %}">
+                        {{ fr.get_status_display|default_if_none:fr.status }}
+                    </span>
+
+                </div>
+
+                <div class="request-body">
+                    <div class="row"><div class="label">📞 Teléfono</div><div class="value">{{ fr.phone }}</div></div>
+                    <div class="row"><div class="label">📱 Producto/Modelo</div><div class="value">{{ fr.device }}</div></div>
+                </div>
+
+                <div class="request-actions">
+                    <button class="btn-details" type="button"
+                        onclick="openDetails({
+                            id: {{ fr.id }},
+                            service_option: '{{ fr.service_option }}',
+                            customer_name: '{{ fr.customer_name|escapejs }}',
+                            email: '{{ fr.email|default:""|escapejs }}',
+
+                            phone: '{{ fr.phone|escapejs }}',
+                            device: '{{ fr.device|escapejs }}',
+                            description: '{{ fr.description|default:""|escapejs }}',
+                            created_at: '{{ fr.created_at|date:"c" }}',
+                            status: '{{ fr.status }}',
+                            status_display: '{{ fr.get_status_display|default:fr.status|escapejs }}',
+                            image_url: '{% if fr.image %}{{ fr.image.url|escapejs }}{% endif %}',
+                            image_download_url: '{% url "vendor_download_form_request_image" pk=0 %}'.replace('/0/','/'+{{ fr.id }}+'/'),
+
+                            has_image: {% if fr.image %}true{% else %}false{% endif %},
+
+                            files: {{ fr.files|default:"[]"|safe }}
+
+
+                        })">
+                        Ver detalles
+                    </button>
+
+                </div>
+            </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>📭 No hay solicitudes todavía</h2>
+        <p>Cuando un cliente envíe una solicitud de reparación o mantenimiento, aparecerá aquí.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal details -->
+<div class="modal-overlay" id="detailsModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <h2 id="modalTitle">Detalles</h2>
+            <button class="modal-close" type="button" onclick="closeDetails()">✖</button>
+        </div>
+
+
+        <div class="modal-grid">
+            <div class="modal-item"><div class="k">Usuario</div><div class="v" id="mCustomerName"></div></div>
+            <div class="modal-item"><div class="k">Correo</div><div class="v" id="mEmail"></div></div>
+            <div class="modal-item"><div class="k">Teléfono</div><div class="v" id="mPhone"></div></div>
+            <div class="modal-item"><div class="k">Fecha de envío</div><div class="v" id="mCreatedAt"></div></div>
+            <div class="modal-item"><div class="k">Tipo</div><div class="v" id="mType"></div></div>
+            <div class="modal-item"><div class="k">Estado actual</div><div class="v" id="mStatus"></div></div>
+        </div>
+
+
+        <div class="modal-grid" style="margin-top:12px;">
+            <div class="modal-item" style="grid-column: 1 / -1;">
+                <div class="k">Cambiar estado</div>
+                <div class="v" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <select id="statusSelect" style="padding:10px 12px; border-radius:10px; border:1px solid rgba(192,133,82,0.25); font-weight:700;">
+                        <option value="pending">Pendiente</option>
+                        <option value="reviewed">Respondido</option>
+                        <option value="completed">Solucionado</option>
+                    </select>
+
+                    <button class="btn-details" type="button" style="flex:0 0 auto; padding:10px 16px;" onclick="requestSaveStatus()">Guardar cambios</button>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal-grid" style="margin-top:12px;">
+            <div class="modal-item" style="grid-column: 1 / -1;">
+                <div class="k">Producto / Modelo</div>
+                <div class="v" id="mDevice"></div>
+            </div>
+        </div>
+
+        <div class="modal-desc">
+            <div class="k">Descripción del problema</div>
+            <div class="v" id="mDescription"></div>
+        </div>
+
+        <div class="modal-desc" style="margin-top:12px;">
+            <div class="k">Imagen adjunta</div>
+            <div class="v" id="mImageSection">
+                <div style="margin-bottom:10px;" id="mImagePreviewWrap">
+                    <img id="mImagePreview" src="" alt="Imagen" style="max-width:100%; display:none; border-radius:12px;" />
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;" id="mImageButtons">
+                    <button id="btnViewImage" class="btn-details" type="button" style="flex:0 0 auto; padding:10px 16px;" onclick="viewImage()">Ver imagen</button>
+                    <a id="btnDownloadImage" class="btn-details" style="flex:0 0 auto; padding:10px 16px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;" href="#" download>Descargar imagen</a>
+                </div>
+
+                <div id="mNoImage" style="margin-top:8px; font-weight:700; color:#666; display:none;">Sin imagen adjunta</div>
+            </div>
+        </div>
+
+        <div class="modal-desc" style="margin-top:12px;">
+            <div class="k">Archivos (nombres)</div>
+            <div class="v" id="mFiles"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Confirm modal (guardar cambios) -->
+<div class="modal-overlay" id="confirmStatusModal" aria-hidden="true">
+    <div class="state-modal-card" role="dialog" aria-modal="true">
+        <div class="state-modal-title" style="display:flex; align-items:center; gap:12px;">
+            <div class="modal-icon" style="background: rgba(255,152,0,0.15); border: 1px solid rgba(255,152,0,0.35);">⚠️</div>
+            <div>Confirmar</div>
+        </div>
+        <div class="state-modal-text" style="margin-top:8px;">
+            ¿En verdad quieres guardar los cambios?
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" type="button" onclick="closeConfirmModal()">Cancelar</button>
+            <button class="btn-primary" type="button" onclick="saveStatusNow()">Guardar cambios</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success modal -->
+<div class="modal-overlay" id="successStatusModal" aria-hidden="true">
+    <div class="state-modal-card" role="dialog" aria-modal="true">
+        <div class="state-modal-title" style="display:flex; align-items:center; gap:12px;">
+            <div class="modal-icon" style="background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.35);">✅</div>
+            <div>Listo</div>
+        </div>
+        <div class="state-modal-text" style="margin-top:8px;">Estado actualizado correctamente</div>
+    </div>
+</div>
+
+<!-- Error modal -->
+<div class="modal-overlay" id="errorStatusModal" aria-hidden="true">
+    <div class="state-modal-card" role="dialog" aria-modal="true">
+        <div class="state-modal-title" style="display:flex; align-items:center; gap:12px;">
+            <div class="modal-icon" style="background: rgba(244,67,54,0.12); border: 1px solid rgba(244,67,54,0.25);">⛔</div>
+            <div>Error</div>
+        </div>
+        <div class="state-modal-text" style="margin-top:8px;" id="errorStatusMessage">No se pudo guardar el estado</div>
+        <div class="modal-actions">
+            <button class="btn-primary" type="button" onclick="closeErrorModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function escapeHtml(str) {
+        return String(str)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '<')
+            .replaceAll('>', '>')
+            .replaceAll('"', '"')
+            .replaceAll("'", '&#039;');
+    }
+
+    function openDetails(payload) {
+        // Guardar el id para que saveStatus pueda hacer POST.
+        window.__currentFormRequestId = payload.id;
+
+        document.getElementById('modalTitle').textContent = 'Detalles de la solicitud';
+
+        document.getElementById('mCustomerName').textContent = payload.customer_name || '-';
+        document.getElementById('mEmail').textContent = payload.email || '-';
+        document.getElementById('mPhone').textContent = payload.phone || '-';
+
+        const dt = payload.created_at ? new Date(payload.created_at) : null;
+        document.getElementById('mCreatedAt').textContent = dt ? dt.toLocaleString() : '-';
+
+        const type = payload.service_option === 'reparacion' ? 'Reparación'
+                    : payload.service_option === 'mantenimiento' ? 'Mantenimiento'
+                    : (payload.service_option || 'Servicio');
+        document.getElementById('mType').textContent = type;
+        document.getElementById('mStatus').textContent = payload.status_display || payload.status || '-';
+        document.getElementById('mDevice').textContent = payload.device || '-';
+
+        // Set status selector
+        const sel = document.getElementById('statusSelect');
+        if (sel) {
+            sel.value = payload.status || 'pending';
+        }
+
+
+        document.getElementById('mDescription').innerHTML = escapeHtml(payload.description || '-').replaceAll('\n','<br/>');
+
+        const files = Array.isArray(payload.files) ? payload.files : [];
+        document.getElementById('mFiles').innerHTML = files.length
+            ? files.map(f => `<span class="value">${escapeHtml(f)}</span><br/>`).join('')
+            : '-';
+
+        // Set image + buttons (si existe)
+        const imgUrl = payload.image_url || '';
+        const hasImage = (payload.has_image === true || payload.has_image === 'true' || payload.has_image === 1);
+        const imgSection = document.getElementById('mImageSection');
+        const imgPreview = document.getElementById('mImagePreview');
+        const imgNo = document.getElementById('mNoImage');
+        const imgViewBtn = document.getElementById('btnViewImage');
+        const imgDownloadBtn = document.getElementById('btnDownloadImage');
+
+        // Set botones/visibilidad según existencia de imagen.
+        // Nota: la descarga real será via endpoint protegido.
+        const downloadUrl = payload.image_download_url || '';
+
+        // Importante: SOLO mostrar botones si hay imagen real adjunta.
+        // En el template se envía has_image como true/false, evitando falsos positivos.
+        if (hasImage && imgSection) {
+
+            imgSection.style.display = 'block';
+
+            if (imgPreview) {
+                // vista previa (miniatura) usando la URL del campo image (si existe)
+                imgPreview.src = imgUrl;
+                imgPreview.style.display = 'block';
+            }
+
+            if (imgNo) imgNo.style.display = 'none';
+
+            // Botón ver imagen
+            if (imgViewBtn) {
+                imgViewBtn.disabled = false;
+                imgViewBtn.onclick = () => window.open(imgUrl, '_blank');
+            }
+
+            // Botón descargar: siempre usar endpoint protegido (si existe)
+            if (imgDownloadBtn) {
+                imgDownloadBtn.style.pointerEvents = 'auto';
+                imgDownloadBtn.href = downloadUrl || imgUrl;
+            }
+        } else {
+            if (imgSection) imgSection.style.display = 'block';
+            if (imgPreview) {
+                imgPreview.src = '';
+                imgPreview.style.display = 'none';
+            }
+            if (imgViewBtn) imgViewBtn.disabled = true;
+            if (imgDownloadBtn) imgDownloadBtn.removeAttribute('href');
+            if (imgNo) imgNo.style.display = 'block';
+        }
+
+
+        const modal = document.getElementById('detailsModal');
+
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeDetails() {
+        const modal = document.getElementById('detailsModal');
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function getCsrfToken() {
+        // Django envía CSRF en cookie 'csrftoken' en la mayoría de setups.
+        const name = 'csrftoken';
+        const cookies = document.cookie ? document.cookie.split(';') : [];
+        for (let i = 0; i < cookies.length; i++) {
+            const c = cookies[i].trim();
+            if (c.startsWith(name + '=')) {
+                return decodeURIComponent(c.substring(name.length + 1));
+            }
+        }
+        return '';
+    }
+
+    function openConfirmModal() {
+        const modal = document.getElementById('confirmStatusModal');
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeConfirmModal() {
+        const modal = document.getElementById('confirmStatusModal');
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openSuccessModal() {
+        const modal = document.getElementById('successStatusModal');
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSuccessModal() {
+        const modal = document.getElementById('successStatusModal');
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openErrorModal(message) {
+        const modal = document.getElementById('errorStatusModal');
+        const msgEl = document.getElementById('errorStatusMessage');
+        msgEl.textContent = message || 'No se pudo guardar el estado';
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeErrorModal() {
+        const modal = document.getElementById('errorStatusModal');
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function requestSaveStatus() {
+        openConfirmModal();
+    }
+
+    async function saveStatusNow() {
+
+        const id = window.__currentFormRequestId;
+        const status = document.getElementById('statusSelect')?.value;
+        if (!id || !status) {
+            openErrorModal('No se pudo guardar el estado: solicitud incompleta');
+            closeConfirmModal();
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('status', status);
+
+        const csrf = getCsrfToken();
+
+        const res = await fetch('{% url "update_form_request_status" pk=0 %}'.replace('/0/','/'+id+'/'), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf,
+            },
+            body: formData,
+        });
+
+        let data = null;
+        try {
+            data = await res.json();
+        } catch (e) {
+            // ignore - data remains null
+        }
+
+        if (!res.ok) {
+            const backendMsg = (data && data.message) ? data.message : 'No se pudo guardar el estado';
+            openErrorModal(backendMsg);
+            closeConfirmModal();
+            return;
+        }
+
+        if (data && data.ok) {
+            document.getElementById('mStatus').textContent = data.status_display || data.status;
+            closeConfirmModal();
+            closeDetails();
+            openSuccessModal();
+            setTimeout(() => {
+                closeSuccessModal();
+                window.location.href = '{% url "vendor_form_requests" %}';
+            }, 900);
+            return;
+        }
+
+        const msg = (data && data.message) ? data.message : 'No se pudo guardar el estado';
+        openErrorModal(msg);
+        closeConfirmModal();
+    }
+
+
+
+    document.getElementById('detailsModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDetails();
+    });
+
+    document.addEventListener('click', function(e) {
+        const confirmModal = document.getElementById('confirmStatusModal');
+        const successModal = document.getElementById('successStatusModal');
+        const errorModal = document.getElementById('errorStatusModal');
+
+        if (confirmModal && confirmModal.classList.contains('active') && e.target === confirmModal) {
+            closeConfirmModal();
+        }
+        if (successModal && successModal.classList.contains('active') && e.target === successModal) {
+            closeSuccessModal();
+        }
+        if (errorModal && errorModal.classList.contains('active') && e.target === errorModal) {
+            closeErrorModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDetails();
+            closeConfirmModal();
+            closeSuccessModal();
+            closeErrorModal();
+        }
+    });
+
+</script>
+</body>
+</html>
+

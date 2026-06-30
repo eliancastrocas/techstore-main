@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Catálogo de Mantenimiento | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Material+Icons&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .add-carrito-btn{
+            width:100%;
+            justify-content:center;
+            margin-top: 12px;
+        }
+
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-shadow: 0 20px 40px rgba(62, 39, 35, 0.15);
+            --success: #4CAF50;
+            --danger: #f44336;
+            --warning: #ff9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--wood-dark);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium));
+            padding: 1rem 5%;
+            box-shadow: 0 4px 20px rgba(62, 39, 35, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--wood-accent), #d4a574);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 1.8rem 0 2.2rem;
+        }
+
+        .hero-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--wood-dark), var(--wood-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+            margin-top: 1.2rem;
+        }
+
+        .catalog-card {
+            background: white;
+            border-radius: 22px;
+            padding: 1.25rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .catalog-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 60px rgba(62, 39, 35, 0.18);
+        }
+
+        .card-top {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-left {
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: rgba(192,133,82,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--wood-accent);
+            font-size: 1.2rem;
+            flex: 0 0 auto;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-top: 0.15rem;
+        }
+
+        .card-price {
+            font-weight: 800;
+            color: var(--wood-accent);
+            font-size: 1.25rem;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .card-meta {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.9rem;
+        }
+
+        .details-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: white;
+            background: linear-gradient(135deg, var(--wood-accent), var(--wood-medium));
+            border-radius: 14px;
+            padding: 0.65rem 0.95rem;
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .details-link:hover {
+            transform: translateY(-2px);
+        }
+
+        details {
+            margin-top: 0.9rem;
+            background: #faf7f3;
+            border: 1px solid rgba(192,133,82,0.25);
+            border-radius: 16px;
+            padding: 0.9rem;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 800;
+            color: var(--wood-dark);
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        summary::-webkit-details-marker { display: none; }
+
+        .details-content {
+            margin-top: 0.6rem;
+            color: #444;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .cta-bar {
+            margin-top: 1.6rem;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: rgba(62,39,35,0.1);
+            color: var(--wood-dark);
+            border: 2px solid rgba(62,39,35,0.2);
+            border-radius: 25px;
+            padding: 0.95rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(62,39,35,0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+            .nav-links a {
+                padding: 0.4rem 0.8rem;
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fas fa-tools"></i> TechStore
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'services_catalog' %}"><i class="fas fa-list"></i> Servicios</a>
+            <a href="{% url 'product_list' %}"><i class="fas fa-store"></i> Productos</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <section class="hero">
+            <h1 class="hero-title">Catálogo de Mantenimiento</h1>
+            <p class="hero-subtitle">Selecciona el servicio y revisa qué incluye y cuánto vale.</p>
+        </section>
+
+        <div class="cards-grid">
+            <!-- 1 -->
+            <article class="catalog-card">
+                <div class="card-top">
+                    <div class="card-left">
+                        <div class="card-icon"><i class="fas fa-mobile-alt"></i></div>
+                        <div>
+                            <div class="card-title">Celular</div>
+                        </div>
+                    </div>
+                    <div class="card-price">$55.000</div>
+                </div>
+                <div class="card-meta">Limpieza interna, revisión general, optimización básica y chequeo de funcionamiento.</div>
+
+                <details>
+                    <summary><i class="fas fa-circle-info" style="color: var(--warning);"></i> Click aqui para mas detalles</summary>
+                    <div class="details-content">
+                        <ul>
+                            <li>Limpieza de puerto de carga y componentes visibles</li>
+                            <li>Chequeo de batería, temperatura y puertos</li>
+                            <li>Optimización y limpieza de archivos temporales</li>
+                            <li>Pruebas básicas de audio, WiFi y cámara</li>
+                        </ul>
+                        <div style="margin-top:0.6rem; font-weight:700;">Tiempo estimado: 24-48 horas</div>
+                    </div>
+                    <form method="get" action="{% url 'mantenimiento_form' %}" style="margin-top: 14px;">
+                        <input type="hidden" name="service_key" value="celular">
+                        <input type="hidden" name="add_to_cart" value="on">
+                        <button type="submit" class="btn-secondary" style="width:100%; justify-content:center; border-color: rgba(192,133,82,0.35);">
+                            <i class="fas fa-cart-plus" style="color: var(--wood-accent);"></i> Agregar al carrito
+                        </button>
+                    </form>
+                </details>
+            </article>
+
+            <!-- 2 -->
+            <article class="catalog-card">
+                <div class="card-top">
+                    <div class="card-left">
+                        <div class="card-icon"><i class="fas fa-laptop"></i></div>
+                        <div>
+                            <div class="card-title">Laptop</div>
+                        </div>
+                    </div>
+                    <div class="card-price">$95.000</div>
+                </div>
+                <div class="card-meta">Mantenimiento preventivo con limpieza, revisión térmica y optimización del sistema.</div>
+
+                <details>
+                    <summary><i class="fas fa-circle-info" style="color: var(--warning);"></i> Click aqui para mas detalles</summary>
+                    <div class="details-content">
+                        <ul>
+                            <li>Limpieza interna y mejora del flujo de aire</li>
+                            <li>Revisión de ventiladores y temperaturas</li>
+                            <li>Optimización del sistema (software básico)</li>
+                            <li>Chequeo de teclado, puertos y WiFi</li>
+                        </ul>
+                        <div style="margin-top:0.6rem; font-weight:700;">Tiempo estimado: 24-72 horas</div>
+                    </div>
+                    <form method="get" action="{% url 'mantenimiento_form' %}" style="margin-top: 14px;">
+                        <input type="hidden" name="service_key" value="laptop">
+                        <input type="hidden" name="add_to_cart" value="on">
+                        <button type="submit" class="btn-secondary" style="width:100%; justify-content:center; border-color: rgba(192,133,82,0.35);">
+                            <i class="fas fa-cart-plus" style="color: var(--wood-accent);"></i> Agregar al carrito
+                        </button>
+                    </form>
+                </details>
+            </article>
+
+            <!-- 3 -->
+            <article class="catalog-card">
+                <div class="card-top">
+                    <div class="card-left">
+                        <div class="card-icon"><i class="fas fa-tablet-alt"></i></div>
+                        <div>
+                            <div class="card-title">Tablet</div>
+                        </div>
+                    </div>
+                    <div class="card-price">$70.000</div>
+                </div>
+                <div class="card-meta">Revisión general, limpieza de polvo y optimización para mejor rendimiento.</div>
+
+                <details>
+                    <summary><i class="fas fa-circle-info" style="color: var(--warning);"></i> Click aqui para mas detalles</summary>
+                    <div class="details-content">
+                        <ul>
+                            <li>Limpieza de componentes y revisión visual</li>
+                            <li>Chequeo de carga y duración</li>
+                            <li>Optimización del sistema</li>
+                            <li>Pruebas básicas de conectividad</li>
+                        </ul>
+                        <div style="margin-top:0.6rem; font-weight:700;">Tiempo estimado: 24-48 horas</div>
+                    </div>
+                    <form method="get" action="{% url 'mantenimiento_form' %}" style="margin-top: 14px;">
+                        <input type="hidden" name="service_key" value="tablet">
+                        <input type="hidden" name="add_to_cart" value="on">
+                        <button type="submit" class="btn-secondary" style="width:100%; justify-content:center; border-color: rgba(192,133,82,0.35);">
+                            <i class="fas fa-cart-plus" style="color: var(--wood-accent);"></i> Agregar al carrito
+                        </button>
+                    </form>
+                </details>
+            </article>
+
+            <!-- 4 -->
+            <article class="catalog-card">
+                <div class="card-top">
+                    <div class="card-left">
+                        <div class="card-icon"><i class="fas fa-headphones"></i></div>
+                        <div>
+                            <div class="card-title">Audífonos</div>
+                        </div>
+                    </div>
+                    <div class="card-price">$30.000</div>
+                </div>
+                <div class="card-meta">Limpieza, revisión de puertos y pruebas de audio para mejorar calidad.</div>
+
+                <details>
+                    <summary><i class="fas fa-circle-info" style="color: var(--warning);"></i> Click aqui para mas detalles</summary>
+                    <div class="details-content">
+                        <ul>
+                            <li>Limpieza de mallas, conectores y superficies</li>
+                            <li>Revisión de balance de audio</li>
+                            <li>Pruebas de micrófono (si aplica)</li>
+                            <li>Chequeo de cable o conexión (según modelo)</li>
+                        </ul>
+                        <div style="margin-top:0.6rem; font-weight:700;">Tiempo estimado: 12-24 horas</div>
+                    </div>
+                    <form method="get" action="{% url 'mantenimiento_form' %}" style="margin-top: 14px;">
+                        <input type="hidden" name="service_key" value="audifonos">
+                        <input type="hidden" name="add_to_cart" value="on">
+                        <button type="submit" class="btn-secondary" style="width:100%; justify-content:center; border-color: rgba(192,133,82,0.35);">
+                            <i class="fas fa-cart-plus" style="color: var(--wood-accent);"></i> Agregar al carrito
+                        </button>
+                    </form>
+                </details>
+            </article>
+
+            <!-- 5 -->
+            <article class="catalog-card">
+                <div class="card-top">
+                    <div class="card-left">
+                        <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div>
+                            <div class="card-title">Revisión Técnica General</div>
+                        </div>
+                    </div>
+                    <div class="card-price">$25.000</div>
+                </div>
+                <div class="card-meta">Diagnóstico rápido para detectar fallas y recomendar el siguiente paso.</div>
+
+                <details>
+                    <summary><i class="fas fa-circle-info" style="color: var(--warning);"></i> Click aqui para mas detalles</summary>
+                    <div class="details-content">
+                        <ul>
+                            <li>Revisión de funcionamiento y rendimiento</li>
+                            <li>Chequeo básico de temperatura, puertos y conectividad</li>
+                            <li>Reporte con sugerencias (sin costo si luego se aprueba servicio)</li>
+                        </ul>
+                        <div style="margin-top:0.6rem; font-weight:700;">Tiempo estimado: 6-24 horas</div>
+                    </div>
+                    <form method="get" action="{% url 'mantenimiento_form' %}" style="margin-top: 14px;">
+                        <input type="hidden" name="service_key" value="revision_tecnica">
+                        <input type="hidden" name="add_to_cart" value="on">
+                        <button type="submit" class="btn-secondary" style="width:100%; justify-content:center; border-color: rgba(192,133,82,0.35);">
+                            <i class="fas fa-cart-plus" style="color: var(--wood-accent);"></i> Agregar al carrito
+                        </button>
+                    </form>
+                </details>
+            </article>
+
+            <!-- 6 -->
+            <article class="catalog-card">
+                <div class="card-top">
+                    <div class="card-left">
+                        <div class="card-icon"><i class="fas fa-sync"></i></div>
+                        <div>
+                            <div class="card-title">Limpieza Profunda</div>
+                        </div>
+                    </div>
+                    <div class="card-price">$45.000</div>
+                </div>
+                <div class="card-meta">Limpieza interna completa (polvo/acumulación) y mantenimiento preventivo extendido.</div>
+
+                <details>
+                    <summary><i class="fas fa-circle-info" style="color: var(--warning);"></i> Click aqui para mas detalles</summary>
+                    <div class="details-content">
+                        <ul>
+                            <li>Desmontaje parcial según el equipo</li>
+                            <li>Limpieza de zonas internas con revisión visual</li>
+                            <li>Revisión térmica y mejora de rendimiento básico</li>
+                        </ul>
+                        <div style="margin-top:0.6rem; font-weight:700;">Tiempo estimado: 24-72 horas</div>
+                    </div>
+                    <form method="get" action="{% url 'mantenimiento_form' %}" style="margin-top: 14px;">
+                        <input type="hidden" name="service_key" value="limpieza_profunda">
+                        <input type="hidden" name="add_to_cart" value="on">
+                        <button type="submit" class="btn-secondary" style="width:100%; justify-content:center; border-color: rgba(192,133,82,0.35);">
+                            <i class="fas fa-cart-plus" style="color: var(--wood-accent);"></i> Agregar al carrito
+                        </button>
+                    </form>
+                </details>
+            </article>
+        </div>
+
+        <div class="cta-bar">
+            <a href="{% url 'services_catalog' %}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver a Servicios
+            </a>
+            <a href="{% url 'product_list' %}" class="btn-secondary">
+                <i class="fas fa-store"></i> Ver Productos
+            </a>
+        </div>
+
+
+    </div>
+</body>
+</html>
+

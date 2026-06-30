@@ -1,0 +1,232 @@
+{% load static %}
+
+<style>
+  /* Modal moderno de eliminación (pedido detalle) */
+  .delete-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+  }
+
+  .delete-modal-overlay.active {
+    display: flex;
+  }
+
+  .delete-modal-card {
+    width: 100%;
+    max-width: 560px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  .delete-modal-overlay.active .delete-modal-card {
+    animation: deleteModalIn 180ms ease forwards;
+  }
+
+  @keyframes deleteModalIn {
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .delete-modal-header {
+    padding: 18px 20px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .delete-modal-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244, 67, 54, 0.12);
+    border: 1px solid rgba(244, 67, 54, 0.35);
+    color: #c62828;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .delete-modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #3e2723;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .delete-modal-close {
+    margin-left: auto;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: #444;
+    font-size: 18px;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  .delete-modal-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .delete-modal-body {
+    padding: 0 20px 16px;
+  }
+
+  .delete-modal-message {
+    margin: 0;
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .delete-modal-actions {
+    display: flex;
+    gap: 12px;
+    padding: 0 20px 20px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .delete-btn {
+    border-radius: 12px;
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  }
+
+  .delete-btn:active {
+    transform: translateY(1px);
+  }
+
+  .delete-btn-danger {
+    background: #f44336;
+    color: #fff;
+    border-color: rgba(244, 67, 54, 0.3);
+  }
+
+  .delete-btn-danger:hover {
+    background: #d32f2f;
+  }
+
+  .delete-btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+    border-color: #d6d6d6;
+  }
+
+  .delete-btn-secondary:hover {
+    background: #d5d5d5;
+  }
+
+  @media (max-width: 480px) {
+    .delete-modal-actions {
+      justify-content: stretch;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .delete-btn {
+      flex: 1;
+    }
+
+    .delete-modal-header {
+      padding: 16px 16px 10px;
+    }
+
+    .delete-modal-body {
+      padding: 0 16px 16px;
+    }
+  }
+</style>
+
+<div class="delete-modal-overlay" id="deleteOrderDetailModal" aria-hidden="true">
+  <div class="delete-modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteOrderDetailTitle">
+    <div class="delete-modal-header">
+      <div class="delete-modal-icon">⚠️</div>
+      <h2 class="delete-modal-title" id="deleteOrderDetailTitle">Eliminar pedido</h2>
+      <button type="button" class="delete-modal-close" aria-label="Cerrar" id="deleteOrderDetailCloseBtn">✖</button>
+    </div>
+
+    <div class="delete-modal-body">
+      <p class="delete-modal-message">¿Realmente deseas eliminar este pedido? No podrás volver a verlo.</p>
+    </div>
+
+    <div class="delete-modal-actions">
+      <button type="button" class="delete-btn delete-btn-secondary" id="cancelDeleteOrderDetailBtn">Cancelar</button>
+      <form id="deleteOrderDetailForm" method="post" action="" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="delete-btn delete-btn-danger" id="confirmDeleteOrderDetailBtn">Sí, eliminar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function initDeleteOrderDetailModal() {
+    const overlay = document.getElementById('deleteOrderDetailModal');
+    const closeBtn = document.getElementById('deleteOrderDetailCloseBtn');
+    const cancelBtn = document.getElementById('cancelDeleteOrderDetailBtn');
+    const form = document.getElementById('deleteOrderDetailForm');
+
+    if (!overlay || !form) return;
+
+    let orderDeleteUrl = '';
+
+    function openModal(deleteUrl) {
+      orderDeleteUrl = deleteUrl;
+      if (deleteUrl) {
+        form.action = deleteUrl;
+      }
+
+      overlay.classList.add('active');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('delete-modal-open');
+    }
+
+    function closeModal() {
+      overlay.classList.remove('active');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('delete-modal-open');
+    }
+
+    // ESC
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
+    // click fuera
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal();
+    });
+
+    closeBtn && closeBtn.addEventListener('click', closeModal);
+    cancelBtn && cancelBtn.addEventListener('click', closeModal);
+
+    // Exponer función global para el botón del template
+    window.openDeleteOrderDetailModal = function (deleteUrl) {
+      openModal(deleteUrl);
+    };
+  })();
+</script>
+

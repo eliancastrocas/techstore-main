@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            padding: 50px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: var(--wood-dark);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .whatsapp-btn {
+            display: block;
+            background-color: #25D366;
+            color: var(--white);
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            transition: transform 0.3s;
+        }
+
+        .whatsapp-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--wood-dark);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--wood-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+            resize: none;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--wood-accent);
+        }
+
+        .btn-submit {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #a67041;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--wood-accent);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Atención al Cliente</h1>
+        
+        <a href="https://wa.me/573125656485?text=Hola TechStore, tengo una consulta" class="whatsapp-btn" target="_blank">
+            💬 Contactar por WhatsApp (+57 312 565 6485)
+        </a>
+        
+        <h3>📝 Enviar Queja</h3>
+        <p>Elije si la queja es para el administrador o un vendedor:</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                {{ form.motivo.label_tag }}
+                {{ form.motivo }}
+            </div>
+            <div class="form-group">
+                {{ form.destinatario.label_tag }}
+                {{ form.destinatario }}
+            </div>
+            <div class="form-group">
+                {{ form.mensaje.label_tag }}
+                {{ form.mensaje }}
+            </div>
+            <div class="deadline-notice" style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <strong>⏰ Plazo de respuesta:</strong> El administrador o vendedor tiene <strong>1 semana</strong> para responder tu queja.
+            </div>
+            <button type="submit" class="btn-submit">Enviar Queja</button>
+        </form>
+        
+        <a href="{% url 'home' %}" class="back-link">← Volver al inicio</a>
+    </div>
+</body>
+</html>

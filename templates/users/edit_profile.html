@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Mi Perfil | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--wood-accent);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium));
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--wood-light);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            overflow: hidden;
+            border: 4px solid var(--wood-accent);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .profile-header p {
+            opacity: 0.8;
+        }
+
+        .edit-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .edit-card h2 {
+            color: var(--wood-dark);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--wood-light);
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .form-section h3 {
+            color: var(--wood-medium);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--wood-medium);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--wood-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-save:hover {
+            background-color: #a67041;
+        }
+
+        .btn-cancel {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .btn-cancel:hover {
+            color: var(--wood-dark);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Mi Perfil</a>
+            <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="{{ user.username }}">
+                {% else %}
+                👤
+                {% endif %}
+            </div>
+            <h1>{{ user.username }}</h1>
+            <p>{{ user.email }}</p>
+        </div>
+
+        <div class="edit-card">
+            <h2>✏️ Editar Mi Perfil</h2>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <h3>Información de Cuenta</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username">Nombre de usuario</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo electrónico</label>
+                            <input type="email" value="{{ user.email }}" disabled style="opacity:0.7; cursor:not-allowed;">
+                            <p style="margin-top: 8px; font-size: 0.9rem; color: #666;">Por seguridad, no puedes cambiar tu correo desde esta sección.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Información Personal</h3>
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value="{{ profile.phone|default:'' }}"
+                            placeholder="Ingresa tu número de teléfono"
+                            inputmode="numeric"
+                            pattern="\d{10,15}"
+                            minlength="10"
+                            maxlength="15"
+                            oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Dirección</label>
+                        <textarea id="address" name="address" placeholder="Ingresa tu dirección">{{ profile.address|default:'' }}</textarea>
+                    </div>
+                    <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">Ciudad</label>
+                        <select id="city" name="city">
+                            {% if profile.city %}
+                                <option value="{{ profile.city }}" selected>{{ profile.city }}</option>
+                            {% else %}
+                                <option value="" selected>Selecciona una ciudad</option>
+                            {% endif %}
+                        </select>
+                        <script>
+                            (function () {
+                                const select = document.getElementById('city');
+                                const selectedValue = '{{ profile.city|default:'' }}'.trim();
+                                const citiesCO = [
+                                    'Amazonas - Leticia',
+                                    'Antioquia - Medellín',
+                                    'Antioquia - Envigado',
+                                    'Antioquia - Bello',
+                                    'Atlántico - Barranquilla',
+                                    'Bolívar - Cartagena de Indias',
+                                    'Boyacá - Tunja',
+                                    'Caldas - Manizales',
+                                    'Caquetá - Florencia',
+                                    'Cauca - Popayán',
+                                    'Cesar - Valledupar',
+                                    'Córdoba - Montería',
+                                    'Cundinamarca - Bogotá',
+                                    'Chocó - Quibdó',
+                                    'Huila - Neiva',
+                                    'La Guajira - Riohacha',
+                                    'Magdalena - Santa Marta',
+                                    'Meta - Villavicencio',
+                                    'Nariño - San Juan de Pasto',
+                                    'Norte de Santander - Cúcuta',
+                                    'Putumayo - Mocoa',
+                                    'Quindío - Armenia',
+                                    'Risaralda - Pereira',
+                                    'Santander - Bucaramanga',
+                                    'Sucre - Sincelejo',
+                                    'Tolima - Ibagué',
+                                    'Valle del Cauca - Cali',
+                                    'Valle del Cauca - Buenaventura',
+                                    'Vaupés - Mitú',
+                                    'Vichada - Puerto Carreño'
+                                ];
+
+                                // Crea opciones (evita duplicar la opción seleccionada inicial)
+                                const existing = new Set(Array.from(select.options).map(o => o.value));
+                                for (const c of citiesCO) {
+                                    // si ya existe, no duplicar
+                                    if (existing.has(c)) continue;
+                                    const opt = document.createElement('option');
+                                    opt.value = c;
+                                    opt.textContent = c;
+                                    select.appendChild(opt);
+                                }
+
+                                // Forzar selección si el valor existe en el listado
+                                if (selectedValue) {
+                                    select.value = selectedValue;
+                                }
+                            })();
+                        </script>
+                    </div>
+                        <div class="form-group">
+                            <label for="postal_code">Código Postal</label>
+                            <input type="text" id="postal_code" name="postal_code" value="{{ profile.postal_code|default:'' }}" placeholder="Código postal">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="avatar">Foto de Perfil</label>
+                        <input type="file" id="avatar" name="avatar" accept="image/*">
+                        {% if profile.avatar %}
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">Imagen actual: <img src="{{ profile.avatar.url }}" style="width: 50px; height: 50px; border-radius: 50%; vertical-align: middle; margin-left: 5px;"></p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save">Guardar Cambios</button>
+                <a href="{% url 'home' %}" class="btn-cancel">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

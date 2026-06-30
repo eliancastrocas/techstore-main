@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Servicios | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .page-title {
+            color: var(--wood-dark);
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .service-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--wood-accent);
+        }
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .service-name {
+            font-weight: 700;
+            color: var(--wood-dark);
+            font-size: 1.2rem;
+        }
+        .service-price {
+            font-weight: 700;
+            color: var(--wood-accent);
+            font-size: 1.3rem;
+        }
+        .service-description {
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .service-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn-edit {
+            background-color: var(--wood-accent);
+            color: var(--white);
+        }
+        .btn-edit:hover {
+            background-color: #a67041;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: var(--white);
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        .no-services {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            .service-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'vendor_dashboard' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'product_list' %}">Productos</a>
+            <a href="{% url 'service_create' %}">Crear Servicio</a>
+            <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">🔧 Mis Servicios</h1>
+        
+        {% if services %}
+            <div class="services-grid">
+                {% for service in services %}
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="service-name">{{ service.name }}</span>
+                        <span class="service-price">{{ service.price|currency }}</span>
+                    </div>
+                    <p class="service-description">{{ service.description }}</p>
+                    <div class="service-actions">
+                        <a href="{% url 'service_update' service.pk %}" class="btn-small btn-edit">Editar</a>
+                        <a href="{% url 'service_delete' service.pk %}" class="btn-small btn-delete" onclick="return confirm('¿Eliminar este servicio?')">Eliminar</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-services">
+                <h3>No tienes servicios publicados</h3>
+                <p>Crea tu primer servicio de reparación o mantenimiento.</p>
+                <a href="{% url 'service_create' %}" class="btn-primary" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem;">🔧 Crear Primer Servicio</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

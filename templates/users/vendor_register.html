@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Vendedor | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .register-container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(62, 39, 35, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium));
+            padding: 40px;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .form-panel {
+            padding: 40px 60px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--wood-medium);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--wood-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.1);
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .cta-button:hover {
+            background-color: #a67041;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: var(--wood-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-box h4 {
+            color: #1565c0;
+            margin-bottom: 5px;
+        }
+
+        .info-box p {
+            font-size: 0.9rem;
+            color: #1976d2;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .form-panel {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <div class="header">
+            <h2>🌟 Regístrate como Vendedor</h2>
+            <p>Únete a TechStore y comienza a vender tus productos tecnológicos</p>
+        </div>
+
+        <div class="form-panel">
+            {% if form.errors %}
+            <div class="info-box" style="background-color: #ffebee; border-left-color: #f44336;">
+                <h4 style="color: #c62828;">Errores en el formulario</h4>
+                <p style="color: #c62828;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            • {{ error }}<br>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        • {{ error }}<br>
+                    {% endfor %}
+                </p>
+            </div>
+            {% endif %}
+
+            <form action="{% url 'vendor_register' %}" method="POST">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_username">Nombre de usuario *</label>
+                        <input type="text" id="id_username" name="username" placeholder="Ej. tiendatecnologia" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_email">Correo electrónico *</label>
+                        <input type="email" id="id_email" name="email" placeholder="tu@correo.com" required>
+                    </div>
+
+<div class="form-group">
+                        <label for="id_phone">Número de teléfono *</label>
+                        <input type="tel" id="id_phone" name="phone" placeholder="Ej. +573123456789" required inputmode="numeric" pattern="\+?\d{10,20}" maxlength="20" oninput="this.value=this.value.replace(/[^0-9+]/g,'');" autocomplete="tel">
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_store_name">Nombre de la tienda *</label>
+                        <input type="text" id="id_store_name" name="store_name" placeholder="Nombre de tu negocio" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_subrole">Rol del vendedor *</label>
+                        <select id="id_subrole" name="subrole" required>
+                            <option value="">Selecciona un rol</option>
+                            <option value="general">General</option>
+                            <option value="cajero">Cajero</option>
+                            <option value="inventario">Inventario</option>
+                            <option value="gerente">Gerente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_password1">Contraseña *</label>
+                        <input type="password" id="id_password1" name="password1" placeholder="Mínimo 8 caracteres" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_password2">Confirmar contraseña *</label>
+                        <input type="password" id="id_password2" name="password2" placeholder="Repite tu contraseña" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="cta-button">Registrarse como vendedor</button>
+
+            </form>
+
+            <div class="login-link">
+                ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a><br>
+                ¿Prefieres registrarte como cliente? <a href="{% url 'register' %}">Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

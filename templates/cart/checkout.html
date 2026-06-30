@@ -1,0 +1,762 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-home {
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            border: 1px solid rgba(208, 200, 190, 0.45);
+        }
+
+        .order-summary {
+            padding: 26px;
+        }
+
+        .summary-header {
+            margin-bottom: 16px;
+        }
+        .summary-title {
+            color: var(--wood-dark);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .summary-subtitle {
+            color: #6b5b52;
+            font-size: 0.95rem;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 18px;
+            margin-bottom: 18px;
+        }
+
+        .product-card {
+            display: grid;
+            grid-template-columns: 72px 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(215, 204, 200, 0.9);
+            background: linear-gradient(180deg, rgba(215, 204, 200, 0.18), rgba(255,255,255,0.9));
+            transition: transform 140ms ease, box-shadow 140ms ease;
+        }
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        }
+
+        .item-image {
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: var(--wood-light);
+            border: 1px solid rgba(215, 204, 200, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-meta {
+            min-width: 0;
+        }
+        .product-name {
+            color: var(--wood-dark);
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-sub {
+            color: #6b5b52;
+            font-size: 0.92rem;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(192, 133, 82, 0.25);
+            color: var(--wood-dark);
+            background: rgba(192, 133, 82, 0.08);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .product-total {
+            text-align: right;
+            min-width: 120px;
+        }
+
+        .detail-section.hidden {
+            display: none;
+        }
+
+        /* Secciones dinámicas (método de pago / entrega) */
+        .payment-section.hidden,
+        .delivery-section.hidden {
+            display: none;
+        }
+
+        .product-total .label {
+            color: #6b5b52;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+        .product-total .value {
+            color: var(--wood-accent);
+            font-weight: 800;
+            font-size: 1.15rem;
+        }
+
+        .summary-footer {
+            padding-top: 16px;
+            border-top: 1px solid rgba(215, 204, 200, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .summary-total-wrap {
+            text-align: right;
+        }
+        .summary-total-label {
+            color: #6b5b52;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .summary-total {
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--wood-accent);
+        }
+
+        .checkout-form {
+            padding: 26px;
+        }
+
+        .form-section {
+            margin-bottom: 22px;
+        }
+        .form-section h3 {
+            color: var(--wood-dark);
+            margin-bottom: 12px;
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .form-help {
+            background: rgba(255, 243, 205, 0.85);
+            border: 1px solid rgba(255, 202, 40, 0.35);
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: #6b4f00;
+            font-size: 0.92rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            color: var(--wood-dark);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid rgba(215, 204, 200, 0.9);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background-color: var(--white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(192, 133, 82, 0.95);
+            box-shadow: 0 0 0 4px rgba(192, 133, 82, 0.18);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid rgba(215, 204, 200, 0.9);
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: var(--white);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: rgba(192, 133, 82, 0.95);
+            box-shadow: 0 0 0 4px rgba(192, 133, 82, 0.18);
+        }
+
+        .detail-section {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(215, 204, 200, 0.9);
+            animation: fadeInUp 180ms ease both;
+        }
+
+        .detail-section.hidden {
+            display: none;
+            animation: none;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .errorlist {
+            color: #d32f2f;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            list-style: none;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            padding: 16px 18px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.15rem;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+            box-shadow: 0 10px 22px rgba(192, 133, 82, 0.25);
+        }
+        .btn-confirm:hover {
+            background-color: #a67041;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(192, 133, 82, 0.30);
+        }
+        .btn-confirm:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--wood-medium);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+
+        /* Custom confirmation modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(62, 39, 35, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-dialog {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-dialog {
+            transform: scale(1);
+        }
+        .modal-title {
+            color: var(--wood-dark);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .modal-message {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .modal-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            max-width: 180px;
+        }
+        .modal-btn-yes {
+            background: var(--wood-accent);
+            color: var(--white);
+        }
+        .modal-btn-yes:hover {
+            background: #a67041;
+        }
+        .modal-btn-no {
+            background: var(--wood-light);
+            color: var(--text-dark);
+            border: 2px solid var(--wood-light);
+        }
+        .modal-btn-no:hover {
+            background: var(--wood-medium);
+            color: var(--white);
+        }
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+            .product-card {
+                grid-template-columns: 64px 1fr;
+                grid-template-rows: auto auto;
+            }
+            .product-total {
+                grid-column: 1 / -1;
+                text-align: left;
+                margin-top: -6px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}" class="btn-home">Inicio</a>
+            <a href="{% url 'cart_detail' %}" class="btn-home">Carrito</a>
+        </nav>
+    </header>
+    <div class="container">
+        <a href="{% url 'cart_detail' %}" class="back-link">← Volver al carrito</a>
+        <div class="checkout-container">
+            <div class="card order-summary">
+                <div class="summary-header">
+                    <h2 class="summary-title">Resumen del pedido</h2>
+                    <p class="summary-subtitle">Tu compra lista para confirmar</p>
+                </div>
+
+                <div class="items-list">
+                    {% for item in cart.items.all %}
+                    <div class="product-card">
+                        <div class="item-image">
+                            {% if item.content_type.model == 'service' %}
+                                {% if item.item.display_image %}
+                                    <img src="{{ item.item.display_image }}" alt="{{ item.item.name }}">
+                                {% else %}
+                                    🔧
+                                {% endif %}
+                            {% else %}
+                                {% if item.item.display_image %}
+                                    <img src="{{ item.item.display_image }}" alt="{{ item.item.name }}">
+                                {% else %}
+                                    📦
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <div class="product-meta">
+                            <div class="product-name">{{ item.item.name }}</div>
+                            <div class="product-sub">
+                                <span class="chip">Cantidad: <strong>{{ item.quantity }}</strong></span>
+                                <span class="chip">Precio: <strong>{{ item.price|currency }}</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="product-total">
+                            <div class="label">Subtotal</div>
+                            <div class="value">{{ item.subtotal|currency }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="summary-footer">
+                    <div>
+                        <div class="summary-total-label">Total general</div>
+                        <div class="summary-subtitle">({{ cart.item_count }} artículos)</div>
+                    </div>
+                    <div class="summary-total-wrap">
+                        <div class="summary-total">{{ cart.total|currency }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card checkout-form">
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-section">
+                        <h3>💳 Método de Pago</h3>
+                        <div class="radio-group">
+                            {{ form.payment_method }}
+                        </div>
+                    </div>
+
+                    {# Transferencia bancaria #}
+                    <div class="form-section payment-section" id="bank-details">
+                        <h4>🏦 Transferencia bancaria</h4>
+                        <p class="form-help">Te enviaremos los datos y confirmaremos el pago una vez recibida la transferencia.</p>
+
+                        <div class="form-group">
+                            {{ form.bank_name.label_tag }}
+                            {{ form.bank_name }}
+                            {{ form.bank_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.bank_account_number.label_tag }}
+                            {{ form.bank_account_number }}
+                            {{ form.bank_account_number.errors }}
+                        </div>
+
+                        {# Según tu requerimiento: titular + número de tarjeta #}
+                        <div class="form-group">
+                            {{ form.card_holder_name.label_tag }}
+                            {{ form.card_holder_name }}
+                            {{ form.card_holder_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.card_number.label_tag }}
+                            {{ form.card_number }}
+                            {{ form.card_number.errors }}
+                        </div>
+                    </div>
+
+                    {# Tarjeta (mantenemos compatibilidad por si tu lógica usa card) #}
+                    <div class="form-section payment-section" id="card-details">
+                        <h4>💳 Pago con tarjeta</h4>
+                        <p class="form-help">Pago con tarjeta (campo simple de compatibilidad).</p>
+
+                        <div class="form-group">
+                            {{ form.card_holder_name.label_tag }}
+                            {{ form.card_holder_name }}
+                            {{ form.card_holder_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.card_number.label_tag }}
+                            {{ form.card_number }}
+                            {{ form.card_number.errors }}
+                        </div>
+                    </div>
+
+                    {# Pago contra entrega #}
+                    <div class="form-section payment-section" id="cod-details">
+                        <h4>📋 Pago contra entrega</h4>
+                        <p class="form-help">Debes proporcionar los datos del receptor y la fecha estimada.</p>
+
+                        <div class="form-group">
+                            {{ form.pickup_full_name.label_tag }}
+                            {{ form.pickup_full_name }}
+                            {{ form.pickup_full_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.pickup_document.label_tag }}
+                            {{ form.pickup_document }}
+                            {{ form.pickup_document.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.pickup_phone.label_tag }}
+                            {{ form.pickup_phone }}
+                            {{ form.pickup_phone.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.pickup_date.label_tag }}
+                            {{ form.pickup_date }}
+                            {{ form.pickup_date.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🚚 Opción de Entrega</h3>
+                        <div class="radio-group">
+                            {{ form.delivery_type }}
+                        </div>
+                    </div>
+
+                    <div class="form-section delivery-section" id="delivery-details">
+                        <h4>📍 Dirección de envío</h4>
+                        <p class="form-help">Si eliges envío a domicilio, agrega la dirección completa.</p>
+
+                        <div class="form-group">
+                            {{ form.delivery_address.label_tag }}
+                            {{ form.delivery_address }}
+                            {{ form.delivery_address.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        {{ form.non_field_errors }}
+                    </div>
+
+                    {% if user.is_authenticated and user.profile.is_cliente %}
+                        <button id="confirm-btn" type="submit" class="btn-confirm">Confirmar Pedido y Pagar</button>
+                    {% else %}
+                        <p style="text-align:center;color:#666;">No tienes permisos para comprar.</p>
+                    {% endif %}
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-dialog">
+            <h2 class="modal-title">🛒 Confirmar Pedido</h2>
+            <p class="modal-message">¿Realmente desea proceder al pago? Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button id="modal-no" class="modal-btn modal-btn-no">Seguir explorando</button>
+                <button id="modal-yes" class="modal-btn modal-btn-yes">Sí, confirmar pago</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setHidden(el, hidden) {
+            if (!el) return;
+            if (hidden) {
+                el.classList.add('hidden');
+                el.setAttribute('aria-hidden', 'true');
+            } else {
+                el.classList.remove('hidden');
+                el.setAttribute('aria-hidden', 'false');
+            }
+        }
+
+        function setSectionRequired(container, requiredFieldNames) {
+            if (!container) return;
+            const inputs = container.querySelectorAll('input, select, textarea');
+            inputs.forEach((inp) => {
+                const name = inp.getAttribute('name');
+                if (!name) return;
+                if (requiredFieldNames.includes(name)) {
+                    inp.required = true;
+                } else {
+                    inp.required = false;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentSelect = document.getElementById('payment_method_select');
+            const deliverySelect = document.getElementById('delivery_type_select');
+
+            const bankDetails = document.getElementById('bank-details');
+            const cardDetails = document.getElementById('card-details');
+            const codDetails = document.getElementById('cod-details');
+            const deliveryDetails = document.getElementById('delivery-details');
+
+            // Inicializar: ocultar todo y luego mostrar según selección.
+            setHidden(bankDetails, true);
+            setHidden(cardDetails, true);
+            setHidden(codDetails, true);
+            setHidden(deliveryDetails, true);
+
+            paymentSelect.addEventListener('change', function() {
+                const value = this.value;
+
+                // reset
+                setHidden(bankDetails, true);
+                setHidden(cardDetails, true);
+                setHidden(codDetails, true);
+
+                if (value === 'transfer') {
+                    setHidden(bankDetails, false);
+                    setSectionRequired(bankDetails, [
+                        'bank_name',
+                        'bank_account_number',
+                        'card_holder_name',
+                        'card_number',
+                    ]);
+                } else {
+                    setSectionRequired(bankDetails, []);
+                }
+
+                if (value === 'card') {
+                    setHidden(cardDetails, false);
+                    setSectionRequired(cardDetails, ['card_holder_name', 'card_number']);
+                } else {
+                    setSectionRequired(cardDetails, []);
+                }
+
+                if (value === 'contra_entrega') {
+                    setHidden(codDetails, false);
+                    setSectionRequired(codDetails, [
+                        'pickup_full_name',
+                        'pickup_document',
+                        'pickup_phone',
+                        'pickup_date',
+                    ]);
+                } else {
+                    setSectionRequired(codDetails, []);
+                }
+            });
+
+            deliverySelect.addEventListener('change', function() {
+                const value = this.value;
+                setHidden(deliveryDetails, true);
+                if (value === 'delivery') {
+                    setHidden(deliveryDetails, false);
+                    setSectionRequired(deliveryDetails, ['delivery_address']);
+                } else {
+                    setSectionRequired(deliveryDetails, []);
+                }
+            });
+
+            // Estado inicial
+            paymentSelect.dispatchEvent(new Event('change'));
+            deliverySelect.dispatchEvent(new Event('change'));
+        });
+
+        // Confirmation modal
+        const confirmBtn = document.getElementById('confirm-btn');
+        const modal = document.getElementById('confirm-modal');
+        const modalYes = document.getElementById('modal-yes');
+        const modalNo = document.getElementById('modal-no');
+
+        confirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.classList.add('active');
+        });
+
+        modalNo.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+
+        modalYes.addEventListener('click', function() {
+            modal.classList.remove('active');
+            confirmBtn.closest('form').submit();
+        });
+
+        // Close modal on overlay click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    </script>
+
+
+</body>
+</html>

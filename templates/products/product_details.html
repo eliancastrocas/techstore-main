@@ -1,0 +1,111 @@
+{% load currency_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del producto | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --wood-dark:#3e2723;
+            --wood-medium:#6d4c41;
+            --wood-light:#d7ccc8;
+            --wood-accent:#c08552;
+            --bg-color:#f5f0eb;
+            --text-dark:#2c1e16;
+            --white:#fff;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+        body{background:var(--bg-color);color:var(--text-dark);}
+        header{background:var(--wood-dark);padding:20px 50px;display:flex;justify-content:space-between;align-items:center;}
+        .logo{color:var(--white);font-size:1.5rem;font-weight:700;text-decoration:none;}
+        .nav-links{display:flex;gap:30px;align-items:center;flex-wrap:wrap;}
+        .nav-links a{color:var(--white);text-decoration:none;font-weight:500;transition:color .3s;}
+        .nav-links a:hover{color:var(--wood-accent);}
+        .container{max-width:1000px;margin:40px auto;padding:0 20px;}
+        .card{background:var(--white);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.08);overflow:hidden;}
+        .details-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:0;}
+        .media{background:var(--wood-light);min-height:320px;display:flex;align-items:center;justify-content:center;}
+        .media img{max-width:100%;max-height:360px;object-fit:contain;}
+        .content{padding:22px;}
+        .content h1{color:var(--wood-dark);font-size:1.5rem;margin-bottom:10px;}
+        .content .desc{color:#666;margin-bottom:12px;line-height:1.6;}
+        .price{font-weight:800;color:var(--wood-accent);font-size:1.35rem;margin-bottom:6px;}
+        .stock{color:#666;margin-bottom:12px;font-weight:600;}
+        .section-title{color:var(--wood-dark);font-weight:900;margin:18px 0 10px;font-size:1.05rem;}
+        .box{background:rgba(215,204,200,0.18);border:1px solid rgba(192,133,82,0.18);border-radius:14px;padding:14px;line-height:1.65;}
+        .muted{color:#777;}
+        .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+        .btn{border:none;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
+        .btn-primary{background:var(--wood-accent);color:var(--white);}
+        .btn-secondary{background:rgba(0,0,0,0.06);color:var(--wood-dark);border:1px solid rgba(0,0,0,0.08);}
+        @media (max-width:768px){.details-grid{grid-template-columns:1fr;}.media{min-height:200px;}}
+    </style>
+</head>
+<body>
+<header>
+    <a href="{% url 'home' %}" class="logo">TechStore</a>
+    <nav class="nav-links">
+        <a href="{% url 'product_catalog' %}">Catálogo</a>
+        <a href="{% url 'services_catalog' %}">Servicios</a>
+        <a href="{% url 'order_list' %}">Mis Compras</a>
+        <a href="{% url 'cart_detail' %}">Carrito{% if cart_count %} <span class="cart-badge">{{ cart_count }}</span>{% endif %}</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="details-grid">
+            <div class="media">
+                {% if product.display_image %}
+                    <img src="{{ product.display_image }}" alt="{{ product.name }}">
+                {% else %}
+                    <span style="font-size:3rem;">📦</span>
+                {% endif %}
+            </div>
+            <div class="content">
+                <h1>{{ product.name }}</h1>
+                <p class="desc">{{ product.description }}</p>
+                <div class="price">{{ product.price|currency }}</div>
+                <div class="stock">Stock disponible: {{ product.stock }} unidades</div>
+                <div class="box" style="margin-top:10px;">
+                    <div class="muted" style="font-weight:800;margin-bottom:6px;">Garantía</div>
+                    <div>
+                        {{ product.get_warranty_months_display }} ({{ product.get_warranty_type_display }})
+                        {% if product.warranty_details %}<div style="margin-top:8px; line-height:1.6;">{{ product.warranty_details }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="section-title">Más detalles del producto</div>
+                <div class="box">
+                    {% with d=details %}
+                        {% if d %}
+                            <div style="margin-bottom:10px;"><b>Referencias:</b> {{ d.referencias|linebreaksbr|default:"-" }}</div>
+                            <div style="margin-bottom:10px;"><b>Especificaciones técnicas:</b> {{ d.especificaciones_tecnicas|linebreaksbr|default:"-" }}</div>
+                            <div style="margin-bottom:10px;"><b>Características:</b> {{ d.caracteristicas|linebreaksbr|default:"-" }}</div>
+                            <div style="margin-bottom:10px;"><b>Contenido de la caja:</b> {{ d.contenido_caja|linebreaksbr|default:"-" }}</div>
+                            <div style="margin-bottom:10px;"><b>Compatibilidades:</b> {{ d.compatibilidades|linebreaksbr|default:"-" }}</div>
+                            <div style="margin-bottom:10px;"><b>Dimensiones:</b> {{ d.dimensiones|linebreaksbr|default:"-" }}</div>
+                            <div style="margin-bottom:10px;"><b>Materiales:</b> {{ d.materiales|linebreaksbr|default:"-" }}</div>
+                            <div style="margin-bottom:10px;"><b>Garantía (detalle adicional):</b> {{ d.garantia_detalle|linebreaksbr|default:"-" }}</div>
+                            <div><b>Otras observaciones:</b> {{ d.otras_comentarios|linebreaksbr|default:"-" }}</div>
+                        {% else %}
+                            <div class="muted" style="font-weight:700;">No hay detalles adicionales para este producto.</div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div class="btn-row">
+                    {% if user.is_authenticated and user.profile.is_cliente %}
+                        <a href="{% url 'cart_add_product' product.id %}" class="btn btn-primary">Agregar al carrito</a>
+                    {% endif %}
+                    <a href="{% url 'product_catalog' %}" class="btn btn-secondary">Volver al catálogo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

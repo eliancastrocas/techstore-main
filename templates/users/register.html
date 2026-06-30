@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Paleta de colores amaderados y cálidos */
+            --wood-dark: #3e2723;     /* Caoba oscuro */
+            --wood-medium: #6d4c41;   /* Nogal */
+            --wood-light: #d7ccc8;    /* Arce claro */
+            --wood-accent: #c08552;   /* Roble cálido (para botones) */
+            --bg-color: #f5f0eb;      /* Fondo hueso/crema */
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        /* Contenedor principal con efecto tarjeta */
+        .register-container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 1000px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(62, 39, 35, 0.1);
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Panel Izquierdo: Marketing y Seducción Visual */
+        .marketing-panel {
+            background: linear-gradient(135deg, rgba(62, 39, 35, 0.9), rgba(109, 76, 65, 0.9)), 
+                        url('https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=1000&auto=format&fit=crop') center/cover;
+            width: 45%;
+            padding: 50px 40px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .marketing-panel h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .marketing-panel p {
+            font-size: 1rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .benefit-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .benefit-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .benefit-list li::before {
+            content: "✓";
+            background-color: var(--wood-accent);
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .social-proof {
+            margin-top: auto;
+            padding-top: 40px;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Panel Derecho: Formulario de Registro */
+        .form-panel {
+            width: 55%;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-panel h3 {
+            font-size: 1.8rem;
+            color: var(--wood-dark);
+            margin-bottom: 10px;
+        }
+
+        .form-panel > p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--wood-medium);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--wood-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.1);
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 10px;
+        }
+
+        .cta-button:hover {
+            background-color: #a67041;
+        }
+
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+
+        .trust-badge {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: var(--wood-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsividad para móviles */
+        @media (max-width: 768px) {
+            .register-container {
+                flex-direction: column;
+            }
+            .marketing-panel {
+                width: 100%;
+                padding: 40px 30px;
+            }
+            .form-panel {
+                width: 100%;
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <div class="marketing-panel">
+            <h2>Tecnología premium, tratada con calidez.</h2>
+            <p>Únete a la plataforma donde los verdaderos entusiastas renuevan sus equipos tecnológicos de forma segura.</p>
+            
+            <ul class="benefit-list">
+                <li>🎁 10% de descuento en tu primera compra</li>
+                <li>🛡️ Transacciones protegidas y verificadas</li>
+                <li>🚚 Envíos asegurados a todo el país</li>
+            </ul>
+
+            <div class="social-proof">
+                <strong>+10,000 usuarios</strong> ya están comprando y vendiendo con nosotros hoy.
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <h3>Crea tu cuenta</h3>
+            <p>Estás a un paso de reclamar tu regalo de bienvenida.</p>
+
+            <form action="{% url 'register' %}" method="POST">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div class="form-errors" style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <strong>Por favor corrige los siguientes errores:</strong>
+                    <ul style="margin-top: 10px;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="id_username">Nombre de usuario</label>
+                    <input type="text" id="id_username" name="username" placeholder="Ej. carlosmendoza" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email">Correo electrónico</label>
+                    <input type="email" id="id_email" name="email" placeholder="tu@correo.com" required>
+                </div>
+
+        <div class="form-group">
+                    <label for="id_password1">Contraseña</label>
+                    <input type="password" id="id_password1" name="password1" placeholder="Mínimo 10 caracteres" required oninput="checkPasswordStrength(this.value)">
+                    <div id="password-strength-meter" style="margin-top: 8px;">
+                        <div id="password-strength-bar" style="height: 6px; border-radius: 3px; background-color: #e0e0e0; transition: all 0.3s;"></div>
+                        <span id="password-strength-text" style="font-size: 0.8rem; color: #666;"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2">Confirmar contraseña</label>
+                    <input type="password" id="id_password2" name="password2" placeholder="Repite tu contraseña" required>
+                </div>
+
+                <button type="submit" class="cta-button">Crear mi cuenta</button>
+                
+                <div class="trust-badge">
+                    🔒 Tus datos están encriptados con seguridad de grado bancario.
+                </div>
+            </form>
+
+            <div class="login-link">
+                ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkPasswordStrength(password) {
+            const bar = document.getElementById('password-strength-bar');
+            const text = document.getElementById('password-strength-text');
+            
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+            
+            // Character variety checks
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+            
+            // Update UI based on strength
+            const percentage = Math.min(100, (strength / 6) * 100);
+            
+            if (strength <= 2) {
+                bar.style.backgroundColor = '#e53935'; // Red - weak
+                text.textContent = 'Débil - Añade más caracteres, números o símbolos';
+                text.style.color = '#e53935';
+            } else if (strength <= 4) {
+                bar.style.backgroundColor = '#fb8c00'; // Orange - medium
+                text.textContent = 'Media - Mejora con mayúsculas, números y símbolos';
+                text.style.color = '#fb8c00';
+            } else {
+                bar.style.backgroundColor = '#43a047'; // Green - strong
+                text.textContent = '¡Fuerte! Tu contraseña es segura';
+                text.style.color = '#43a047';
+            }
+            
+            bar.style.width = percentage + '%';
+        }
+    </script>
+
+</body>
+</html>

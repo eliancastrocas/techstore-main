@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ action }} Servicio | TechStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3e2723;
+            --wood-medium: #6d4c41;
+            --wood-light: #d7ccc8;
+            --wood-accent: #c08552;
+            --bg-color: #f5f0eb;
+            --text-dark: #2c1e16;
+            --white: #ffffff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+        }
+        header {
+            background-color: var(--wood-dark);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: var(--wood-accent);
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .form-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .form-card h1 {
+            color: var(--wood-dark);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--wood-medium);
+            margin-bottom: 8px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--wood-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--wood-accent);
+            box-shadow: 0 0 0 3px rgba(192, 133, 82, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--wood-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            background-color: #a67041;
+        }
+        .btn-cancel {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            text-decoration: none;
+        }
+        .btn-cancel:hover {
+            color: var(--wood-dark);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'vendor_dashboard' %}" class="logo">TechStore</a>
+        <nav class="nav-links">
+            <a href="{% url 'product_list' %}">Productos</a>
+            <a href="{% url 'services_catalog' %}">Servicios</a>
+            <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="form-card">
+            <h1>{{ action }} Servicio</h1>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}">Nombre del servicio:</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <span style="color: red;">{{ form.name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Descripción:</label>
+                    {{ form.description }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.price.id_for_label }}">Precio (COP):</label>
+                    {{ form.price }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.image_url.id_for_label }}">URL Imagen (opcional):</label>
+                    {{ form.image_url }}
+                </div>
+                <button type="submit" class="btn-submit">Guardar Servicio</button>
+                <a href="{% url 'services_catalog' %}" class="btn-cancel">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

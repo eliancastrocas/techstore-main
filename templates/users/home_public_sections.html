@@ -1,0 +1,577 @@
+{% load currency_filters %}
+
+<style>
+    .public-section {
+        margin-top: 28px;
+        margin-bottom: 28px;
+        background: var(--white);
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .section-title {
+        font-size: 1.0rem;
+        color: var(--wood-dark);
+        font-weight: 800;
+        margin-bottom: 14px;
+        letter-spacing: .2px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-subtitle {
+        font-size: 0.82rem;
+        color: rgba(62,39,35,0.72);
+        margin-top: -8px;
+        margin-bottom: 14px;
+    }
+
+    .badge-hot {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: #ef4444;
+        color: #fff;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: .2px;
+        box-shadow: 0 8px 18px rgba(239,68,68,0.25);
+        z-index: 2;
+    }
+
+    .public-card {
+        background: #fafafa;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        position: relative;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .public-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+        background: #f8f8f8;
+    }
+
+    .public-img {
+        height: 150px;
+        background: var(--wood-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .public-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding-top: 2px;
+    }
+
+    .public-btn {
+        background: var(--wood-accent);
+        color: white;
+        padding: 9px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        box-shadow: 0 10px 18px rgba(192,133,82,0.18);
+        transition: transform .15s ease, filter .15s ease;
+    }
+
+    .public-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+
+    /* Accordion (sobre nosotros / ofertas) */
+    .accordion {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .accordion-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .accordion-item {
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.06);
+        background: #fafafa;
+        overflow: hidden;
+        transition: box-shadow .18s ease, transform .18s ease;
+    }
+
+    .accordion-item:hover {
+        box-shadow: 0 12px 26px rgba(0,0,0,0.06);
+        transform: translateY(-1px);
+    }
+
+    .accordion-btn {
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+        padding: 14px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .accordion-emoji {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(192,133,82,0.12);
+        color: var(--wood-accent);
+        font-size: 1.15rem;
+        flex-shrink: 0;
+        border: 1px solid rgba(192,133,82,0.18);
+    }
+
+    .accordion-title {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .accordion-title strong {
+        font-size: 0.92rem;
+        color: var(--wood-dark);
+        font-weight: 950;
+        line-height: 1.2;
+    }
+
+    .accordion-title span {
+        font-size: 0.78rem;
+        color: rgba(62,39,35,0.65);
+    }
+
+    .accordion-chevron {
+        font-weight: 900;
+        color: rgba(62,39,35,0.55);
+        transition: transform .18s ease;
+    }
+
+    .accordion-item[data-open="true"] .accordion-chevron {
+        transform: rotate(180deg);
+    }
+
+    .accordion-panel {
+        padding: 0 14px 14px 14px;
+    }
+
+    .accordion-panel-inner {
+        border-radius: 12px;
+        border: 1px dashed rgba(0,0,0,0.16);
+        background: #fff;
+        padding: 12px 14px;
+        color: #444;
+        line-height: 1.45;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+        .accordion-grid-2 { grid-template-columns: 1fr; }
+    }
+</style>
+
+<script>
+    function initAccordion() {
+        const items = document.querySelectorAll('[data-accordion-item]');
+        items.forEach((item) => {
+            const btn = item.querySelector('[data-accordion-button]');
+            const panel = item.querySelector('[data-accordion-panel]');
+            const inner = item.querySelector('[data-accordion-inner]');
+
+            if (!btn || !panel || !inner) return;
+
+            // Inicializar estado
+            panel.style.display = 'none';
+            item.dataset.open = 'false';
+            btn.setAttribute('aria-expanded', 'false');
+
+            btn.addEventListener('click', () => {
+                const isOpen = item.dataset.open === 'true';
+
+                // Cerrar todos los demás (mejor UX)
+                items.forEach((other) => {
+                    if (other === item) return;
+                    other.dataset.open = 'false';
+                    const otherBtn = other.querySelector('[data-accordion-button]');
+                    const otherPanel = other.querySelector('[data-accordion-panel]');
+                    if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+                    if (otherPanel) otherPanel.style.display = 'none';
+                });
+
+                // Alternar
+                if (isOpen) {
+                    item.dataset.open = 'false';
+                    panel.style.display = 'none';
+                    btn.setAttribute('aria-expanded', 'false');
+                } else {
+                    item.dataset.open = 'true';
+                    panel.style.display = 'block';
+                    btn.setAttribute('aria-expanded', 'true');
+                    // Scroll suave si está muy abajo
+                    inner.scrollTop = 0;
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initAccordion);
+</script>
+
+<div class="public-section">
+    <div class="section-title"> 
+        <span aria-hidden="true">🔥</span> Productos más vendidos / destacados
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+        {% for product in public_products %}
+            <div class="public-card" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="badge-hot">Hot</div>
+
+                <div class="public-img">
+                    {% if product.display_image %}
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <span style="font-size: 3rem;">📦</span>
+                    {% endif %}
+                </div>
+
+                <div style="padding: 15px;">
+                    <div style="font-weight: 950; font-size: 0.95rem; margin-bottom: 6px; color: var(--wood-dark);">{{ product.name }}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px; min-height: 36px;">
+                        {{ product.description|default:""|truncatechars:55 }}
+                    </div>
+
+                    <div class="public-actions">
+                        <div style="font-weight: 950; color: var(--wood-accent); font-size: 1.02rem;">${{ product.price|floatformat:0 }}</div>
+                        <a href="{% url 'product_catalog' %}" class="public-btn" title="Ver catálogo">
+                            Ver <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-data" style="grid-column: 1 / -1; text-align:center; padding: 34px; color:#666;">No hay productos para mostrar.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="public-section">
+    <div class="section-title"> 
+        <span aria-hidden="true">🧠</span> Sobre nosotros
+    </div>
+    <div class="section-subtitle">Toca un cuadro para ver más información.</div>
+
+    <div class="accordion-grid-2">
+        <!-- Columna 1 -->
+        <div class="accordion">
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🏷️</div>
+                    <div class="accordion-title">
+                        <strong>TechStore</strong>
+                        <span>Calidad + soporte especializado</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        TechStore es tu aliado para encontrar productos y servicios de alta calidad, con soporte y atención especializada.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🎯</div>
+                    <div class="accordion-title">
+                        <strong>Nuestro objetivo</strong>
+                        <span>Comprar fácil, seguro y sin estrés</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        Que tengas una experiencia de compra fácil, segura y satisfactoria, desde el primer clic hasta la entrega.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🛡️</div>
+                    <div class="accordion-title">
+                        <strong>Garantía y respaldo</strong>
+                        <span>Acompañamos cada compra</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        Acompañamos cada compra para que recibas lo que esperas. Si algo no cumple, te ayudamos a resolver.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">💬</div>
+                    <div class="accordion-title">
+                        <strong>Atención al cliente</strong>
+                        <span>Asesoría real antes y después</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        Te asesoramos de verdad antes de comprar y también después: para que compres con confianza.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna 2 -->
+        <div class="accordion">
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🌟</div>
+                    <div class="accordion-title">
+                        <strong>Visión</strong>
+                        <span>Referencia por calidad y servicio</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        Ser la tienda de referencia por calidad, variedad y un servicio excepcional.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🤝</div>
+                    <div class="accordion-title">
+                        <strong>Misión</strong>
+                        <span>Confiabilidad + soporte</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        Entregar productos confiables y brindar soporte para que compres con tranquilidad.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">✨</div>
+                    <div class="accordion-title">
+                        <strong>¿Por qué elegirnos?</strong>
+                        <span>Beneficios que se sienten</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        <ul style="margin:0; padding-left: 18px;">
+                            <li>Variedad de productos</li>
+                            <li>Precios competitivos</li>
+                            <li>Atención personalizada</li>
+                            <li>Envios rápidos y seguros</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="public-section">
+    <div class="section-title"> 
+        <span aria-hidden="true">🎁</span> Ofertas de Mayo
+    </div>
+    <div class="section-subtitle">Toca una oferta para ver los detalles.</div>
+
+    <div class="accordion-grid-2">
+        <!-- Bloque principal (1) -->
+        <div class="accordion">
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">⏰</div>
+                    <div class="accordion-title">
+                        <strong>Solo por hoy</strong>
+                        <span>Beneficios rápidos</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        <ul style="margin:0; padding-left: 18px;">
+                            <li>Envío gratis por compras mayores a $500.000.</li>
+                            <li>25% OFF en productos reacondicionados.</li>
+                            <li>15% OFF en productos de la marca Apple.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">📅</div>
+                    <div class="accordion-title">
+                        <strong>Descuentos hasta el 30 de Mayo del 2026</strong>
+                        <span>Elige tu categoría</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        <ul style="margin:0; padding-left: 18px;">
+                            <li>10% OFF en celulares Samsung.</li>
+                            <li>15% OFF en laptops HP.</li>
+                            <li>20% OFF en accesorios seleccionados.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🧩</div>
+                    <div class="accordion-title">
+                        <strong>2x1 / combos</strong>
+                        <span>Ahorra comprando en paquete</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        <ul style="margin:0; padding-left: 18px;">
+                            <li>Compra audífonos y llévate un cargador tipo C totalmente gratis.</li>
+                            <li>Compra un celular y recibe un protector de pantalla sin costo.</li>
+                            <li>Lleva una consola y recibe un videojuego económico gratis.</li>
+                            <li>Compra 2 accesorios y el tercero va al 50%.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque principal (2) -->
+        <div class="accordion">
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🏷️</div>
+                    <div class="accordion-title">
+                        <strong>Cupones</strong>
+                        <span>Para clientes registrados</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        El uso de los cupones es exclusivo para clientes registrados y se aplican al finalizar la compra. No acumulables con otras promociones y tienen fecha de vencimiento. Consulta términos y condiciones.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">🚚</div>
+                    <div class="accordion-title">
+                        <strong>Descuento por primera compra</strong>
+                        <span>Empezar con envío gratis</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        En tu primera compra a domicilio el envío será totalmente gratis.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item" data-accordion-item>
+                <button class="accordion-btn" data-accordion-button type="button" aria-expanded="false">
+                    <div class="accordion-emoji">💳</div>
+                    <div class="accordion-title">
+                        <strong>Cashback / puntos</strong>
+                        <span>Acumula saldo para futuras compras</span>
+                    </div>
+                    <div class="accordion-chevron" aria-hidden="true">⌄</div>
+                </button>
+                <div class="accordion-panel" data-accordion-panel>
+                    <div class="accordion-panel-inner" data-accordion-inner>
+                        Acumula saldo al momento de realizar una compra para futuras adquisiciones.
+                        <div style="margin-top:10px; font-size:0.82rem; color: rgba(62,39,35,0.7);">Tip: pide ayuda por WhatsApp si quieres que te expliquemos cómo aplicar tus puntos.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="public-section">
+    <div class="about-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div>
+            <div class="section-title">
+                <span aria-hidden="true">📞</span> Contáctanos
+            </div>
+
+            <div class="accordion" style="gap: 10px;">
+                <div class="info-item" style="background:#fafafa; border:1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 12px 14px;">
+                    💬 WhatsApp:
+                    <a href="https://wa.me/573125656485?text=Hola%20TechStore%2C%20quiero%20información" target="_blank" style="color: var(--wood-accent); font-weight: 900; text-decoration:none;">+57 312 565 6485</a>
+                </div>
+                <div class="info-item" style="background:#fafafa; border:1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 12px 14px;">
+                    ✉️ Email: <span style="font-weight: 800;">eliann.path@gmail.com</span>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title">
+                <span aria-hidden="true">📍</span> Ubicación
+            </div>
+
+            <div class="accordion" style="gap: 10px;">
+                <div class="info-item" style="background:#fafafa; border:1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 12px 14px;">
+                    📌 Bogotá, Colombia
+                </div>
+                <div class="info-item" style="background:#fafafa; border:1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 12px 14px;">
+                    🗺️ <a href="https://maps.google.com" target="_blank" style="color: var(--wood-accent); font-weight: 900; text-decoration:none;">Nuestra ubicación</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
