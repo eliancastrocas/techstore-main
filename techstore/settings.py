@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,12 +25,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*gd-av5(h#&rn3q&3iy7eqh$h97@&-9cyh($rdsj#nd+wtzhta"
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-insecure-desarrollo"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "techstore-main.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]   
 
 
 # Application definition
@@ -51,13 +59,12 @@ from django.views.decorators.cache import never_cache
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "users.DisableCacheMiddleware.DisableCacheMiddleware",
 ]
@@ -85,16 +92,23 @@ WSGI_APPLICATION = "techstore.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "techstore",
-        "USER": "root",
-        "PASSWORD": "BokugaStussy18",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+if "DATABASE_URL" in os.environ:
+    # Producción (Render)
+    DATABASES = {
+        "default": dj_database_url.parse(os.environ["DATABASE_URL"])
     }
-}
+else:
+    # Desarrollo local (MySQL)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "techstore",
+            "USER": "root",
+            "PASSWORD": "BokugaStussy18",
+            "HOST": "127.0.0.1",
+            "PORT": "3306",
+        }
+    }
 
 
 # Password validation
