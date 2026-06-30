@@ -741,22 +741,49 @@ def warranty_request(request):
 
     cart = Cart.get_cart(request)
 
+    def _get_first_seller_profile():
+        return UserProfile.objects.filter(role="vendedor").order_by("id").first()
+
     if request.method == "POST":
         form = FormRequestForm(request.POST, request.FILES)
         if form.is_valid():
             form_request = form.save(commit=False)
-            if request.user.is_authenticated:
-                form_request.customer_name = (
-                    request.user.get_full_name() or request.user.username
-                )
-                form_request.email = request.user.email
+
+            # Datos del cliente
+            form_request.customer_name = (
+                request.user.get_full_name() or request.user.username
+            )
+            form_request.email = request.user.email or ""
+
+            # Consistencia de tipo/servicio y estado
+            form_request.service_type = "garantia"
+            # El panel del vendedor filtra por reparacion/mantenimiento,
+            # así que para que se vea aquí asignamos reparacion.
+            if not form_request.service_option:
+                form_request.service_option = "reparacion"
+
+            form_request.priority = form_request.priority or "normal"
+            form_request.status = form_request.status or "pending"
+
+            # Asociar a vendedor para que aparezca en /productos/solicitudes/
+            if not form_request.seller_id:
+                form_request.seller = _get_first_seller_profile()
+
             form_request.save()
-            messages.success(request, "¡Solicitud enviada! Te contactaremos pronto.")
+            messages.success(
+                request,
+                "Tu solicitud de garantia se ha enviado correctamente",
+            )
             return redirect("home")
     else:
-        form = FormRequestForm()
+        form = FormRequestForm(initial={
+            "service_type": "garantia",
+            "service_option": "reparacion",
+            "priority": "normal",
+        })
 
     return render(request, "products/warranty_form.html", {"form": form, "cart": cart})
+
 
 
 @login_required
