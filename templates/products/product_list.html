@@ -289,6 +289,53 @@
                 justify-content: center;
             }
         }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+            .state-modal-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn-primary {
+            background: #c62828;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #6d4c41;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -443,12 +490,11 @@
         const nameEl = document.getElementById('deleteProductName');
 
         nameEl.textContent = name || '';
-        // Endpoint existente (delete por pk)
         form.action = '{% url "product_delete" pk=0 %}'.replace('/0/', '/' + pk + '/');
 
         modal.style.display = 'flex';
         modal.setAttribute('aria-hidden', 'false');
-    }
+    }   
 
     function closeDeleteModal() {
         const modal = document.getElementById('deleteModal');

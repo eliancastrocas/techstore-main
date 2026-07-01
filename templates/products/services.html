@@ -231,11 +231,9 @@
                     <div class="service-price">{{ service.price|currency }}</div>
                     <p class="service-description">{{ service.description }}</p>
                     {% if user.is_authenticated and user.profile.is_cliente %}
-                        <form method="post" action="{% url 'cart_add_service' service.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="service-btn">Agregar al Carrito</button>
-                        </form>
+                        <a href="{% url 'cart_add_service' service.id %}" class="service-btn">Agregar al Carrito</a>
                     {% endif %}
+
 
                 </div>
                 {% endfor %}

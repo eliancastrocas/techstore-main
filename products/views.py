@@ -657,20 +657,19 @@ def reparacion_form(request):
 
 
 def mantenimiento_form(request):
-    """Catálogo de mantenimiento (sin formulario). Agrega al carrito por GET con service_key."""
+    """Catálogo de mantenimiento.
+
+    Botón "Agregar al carrito": agrega un Service al carrito.
+    Funciona igual que los demás productos: usa CartItem con el `service_id` real.
+    """
     from cart.models import Cart, CartItem
-    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
     cart = Cart.get_cart(request)
     cart_count = cart.item_count
 
     def add_service_to_cart(service_key: str):
-        if not cart:
-            return
-
         # Mapa clave -> lista de posibles valores dentro de `Service.name`.
-        # (El `name` en BD puede variar, por eso se usa lista + OR.)
         mapping = {
             "celular": ["celular", "telefono", "tel", "cel"],
             "laptop": ["laptop", "notebook", "portatil"],
@@ -682,7 +681,6 @@ def mantenimiento_form(request):
 
         candidates = mapping.get(service_key, ["mantenimiento"])
 
-        # Construir búsqueda OR.
         q = Q()
         for c in candidates:
             q |= Q(name__icontains=c)
@@ -713,25 +711,31 @@ def mantenimiento_form(request):
 
         messages.success(request, f"{service.name} agregado al carrito")
 
-
     # Botón "Agregar al carrito" (GET)
     if request.method == "GET" and request.GET.get("add_to_cart") == "on":
         service_key = (request.GET.get("service_key") or "").strip()
+
+        # Asegura que el carrito exista en sesión (para que el redirect muestre el mismo carrito)
+        _ = cart  # Cart.get_cart ya garantiza la creación
+
         add_service_to_cart(service_key)
-        return redirect("services_catalog")
+        return redirect("cart_detail")
 
     # Mantener compatibilidad si alguien hace POST (no mostramos formulario en la plantilla)
     if request.method == "POST":
-        messages.warning(request, "Este catálogo no tiene formulario. Usa el botón para agregar al carrito.")
-        return redirect("services_catalog")
+        messages.warning(
+            request,
+            "Este catálogo no tiene formulario. Usa el botón para agregar al carrito.",
+        )
+        return redirect("cart_detail")
 
-    # No renderizamos formulario real: enviamos placeholder
     form = FormRequestForm()
     return render(
         request,
         "products/mantenimiento_form.html",
         {"form": form, "cart": cart, "cart_count": cart_count},
     )
+
 
 
 
