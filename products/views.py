@@ -357,6 +357,24 @@ def product_delete(request, pk):
             request,
             f"DEBUG delete OK: user={request.user.username}, vendor_profile_id={vendor_profile.id}, product_id={product.id}, product_seller_id={product.seller_id}",
         )
+
+        # Bloquear eliminación si el producto está asociado a pedidos activos
+        # (cualquier status distinto a "delivered").
+        from orders.models import OrderItem
+
+        has_active_orders = (
+            OrderItem.objects.filter(product=product)
+            .filter(order__status__in=["pending", "processing", "shipped"])
+            .exists()
+        )
+
+        if has_active_orders:
+            messages.error(
+                request,
+                "Este producto se encuentra en un pedido y no se ha entregado, por lo tanto no puede ser eliminado.",
+            )
+            return redirect("product_list")
+
         product.delete()
         messages.success(request, "Producto eliminado exitosamente.")
         return redirect("product_list")

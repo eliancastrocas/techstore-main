@@ -334,7 +334,7 @@
                     <span class="order-id">Pedido #{{ data.order.id }}</span>
                     <span class="order-date"> - {{ data.order.created_at|date:"d/m/Y H:i" }}</span>
                 </div>
-                <span class="status-badge status-{{ data.order.status }}">
+                    <span class="status-badge status-{{ data.order.status }}">
                     {% if data.order.status == 'pending' %}Pendiente
                     {% elif data.order.status == 'processing' %}Procesando
                     {% elif data.order.status == 'shipped' %}Enviado
@@ -342,6 +342,13 @@
                     {% elif data.order.status == 'cancelled' %}Cancelado
                     {% endif %}
                 </span>
+
+                {% if data.order.status == 'delivered' %}
+                    <div style="margin-top: 6px; color: #2e7d32; font-weight: 600; font-size: 0.85rem;">
+                        ✅ Pedido entregado y ya no puede modificarse.
+                    </div>
+                {% endif %}
+
             </div>
 
             <div class="order-items">
@@ -395,7 +402,12 @@
                     {% if data.order.status == 'shipped' %}
                     <a href="{% url 'vendor_update_order_status' data.order.id 'delivered' %}" class="btn btn-deliver">✓ Confirmar Entrega</a>
                     {% endif %}
+
+                    {% if data.order.status == 'delivered' %}
+                        <!-- Entregado: sin acciones (ya está bloqueado) -->
+                    {% endif %}
                 </div>
+
             </div>
         </div>
         {% endfor %}

@@ -357,6 +357,18 @@
     <div class="container">
         <div class="page-header">
             <h1>Mis Productos</h1>
+        </div>
+
+        {# Mensajes flash (Django) #}
+        {% if messages %}
+            <div style="margin: 0 0 20px 0;">
+                {% for message in messages %}
+                    <div style="background: #fff3f3; border: 1px solid #ffb3b3; color: #b71c1c; padding: 12px 16px; border-radius: 12px; font-weight: 600;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
             <div class="header-buttons">
                 <a href="{% url 'product_create' %}" class="btn-create">+ Nuevo Producto</a>
                 <a href="{% url 'bulk_upload' %}" class="btn-movimientos">📊 Carga Masiva</a>

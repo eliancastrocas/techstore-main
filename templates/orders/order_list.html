@@ -474,23 +474,32 @@
                     </div>
 
                     {% if is_admin or is_vendedor %}
-                    <div class="status-actions">
-                        <a href="{% url 'order_status_update' order.id 'pending' %}" class="status-btn btn-pending {% if order.status == 'pending' %}active{% endif %}" title="Pendiente">
-                            <i class="fas fa-clock"></i>
-                        </a>
-                        <a href="{% url 'order_status_update' order.id 'processing' %}" class="status-btn btn-processing {% if order.status == 'processing' %}active{% endif %}" title="Procesar">
-                            <i class="fas fa-cog"></i>
-                        </a>
-                        <a href="{% url 'order_status_update' order.id 'shipped' %}" class="status-btn btn-shipped {% if order.status == 'shipped' %}active{% endif %}" title="Enviar">
-                            <i class="fas fa-truck"></i>
-                        </a>
-                        <a href="{% url 'order_status_update' order.id 'delivered' %}" class="status-btn btn-delivered {% if order.status == 'delivered' %}active{% endif %}" title="Entregar">
-                            <i class="fas fa-check"></i>
-                        </a>
-                        <a href="#" class="status-btn btn-cancelled" title="Cancelar" data-action="noop" onclick="return false;">
-                            <i class="fas fa-times"></i>
-                        </a>
-                    </div>
+                        {% if order.status == 'delivered' %}
+                            <div class="status-actions">
+                                <div style="color: var(--success); font-weight: 700; font-size: 0.85rem;">
+                                    ✅ Pedido entregado. Ya no puede modificarse.
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="status-actions">
+                                <a href="{% url 'order_status_update' order.id 'pending' %}" class="status-btn btn-pending {% if order.status == 'pending' %}active{% endif %}" title="Pendiente">
+                                    <i class="fas fa-clock"></i>
+                                </a>
+                                <a href="{% url 'order_status_update' order.id 'processing' %}" class="status-btn btn-processing {% if order.status == 'processing' %}active{% endif %}" title="Procesar">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+                                <a href="{% url 'order_status_update' order.id 'shipped' %}" class="status-btn btn-shipped {% if order.status == 'shipped' %}active{% endif %}" title="Enviar">
+                                    <i class="fas fa-truck"></i>
+                                </a>
+                                <a href="{% url 'order_status_update' order.id 'delivered' %}" class="status-btn btn-delivered {% if order.status == 'delivered' %}active{% endif %}" title="Entregar">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                <a href="#" class="status-btn btn-cancelled" title="Cancelar" data-action="noop" onclick="return false;">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+
 
                     {% elif order.user == request.user %}
                     <div class="status-actions">
@@ -525,10 +534,57 @@
 
                 <div class="order-footer">
                     <div class="order-total">Total: {{ order.total|currency }}</div>
-                    <a href="{% url 'order_detail' order.id %}" style="color: var(--wood-accent); text-decoration: none; font-weight: 600;">
-                        Ver Detalles <i class="fas fa-arrow-right"></i>
-                    </a>
+                        <a href="{% url 'order_detail' order.id %}"
+                            style="color: var(--wood-accent); text-decoration: none; font-weight: 600;">
+                                Ver Detalles <i class="fas fa-arrow-right"></i>
+                        </a>
                 </div>
+
+{% if is_admin or is_vendedor %}
+    <div class="order-section">
+        <div class="section-title">Mensaje para el Cliente</div>
+
+        <form method="post" action="{% url 'save_vendor_message' order.id %}">
+            {% csrf_token %}
+
+            <textarea
+                name="message"
+                rows="4"
+                style="
+                    width:100%;
+                    padding:10px;
+                    border-radius:10px;
+                    border:1px solid #ccc;
+                    resize:vertical;
+                    margin-bottom:10px;
+                "
+                placeholder="Escribe un mensaje para el cliente..."
+            >{% if order.vendor_message %}{{ order.vendor_message.message }}{% endif %}</textarea>
+
+            <button
+                type="submit"
+                style="
+                    background:#6d4c41;
+                    color:white;
+                    border:none;
+                    padding:10px 15px;
+                    border-radius:8px;
+                    cursor:pointer;
+                "
+            >
+                Guardar Mensaje
+            </button>
+        </form>
+    </div>
+{% elif vendor_message and vendor_message.message %}
+    <div class="order-section">
+        <div class="section-title">Mensaje del Vendedor</div>
+        <div style="white-space: pre-wrap; color:#333; margin-top:8px;">
+            {{ vendor_message.message }}
+        </div>
+    </div>
+{% endif %}
+
 
                 <div class="delivery-info">
                     <div class="delivery-title"><i class="fas fa-truck"></i> Tiempo de Entrega Estimado</div>

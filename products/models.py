@@ -355,7 +355,29 @@ class FormRequest(models.Model):
         ordering = ["-created_at"]
 
 
+class FormRequestVendorMessage(models.Model):
+    """Mensaje del vendedor hacia el cliente dentro de la solicitud (FormRequest)."""
+
+    form_request = models.OneToOneField(
+        FormRequest, on_delete=models.CASCADE, related_name="vendor_message"
+    )
+    seller = models.ForeignKey(
+        "users.UserProfile",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="form_request_vendor_messages",
+    )
+    message = models.TextField(blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Mensaje vendedor FormRequest #{self.form_request_id}"
+
+
 class VerifiedSupplier(models.Model):
+
     nit = models.CharField(max_length=15, unique=True, verbose_name="NIT")
 
     name = models.CharField(max_length=200, verbose_name="Razón Social")

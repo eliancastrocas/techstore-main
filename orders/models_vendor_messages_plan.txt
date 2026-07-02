@@ -1,0 +1,7 @@
+Implementación mensajes vendedor->cliente
+
+- OrderVendorMessage en orders/models.py
+- FormRequestVendorMessage en products/models.py
+
+Luego: views y plantillas.
+

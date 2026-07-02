@@ -26,5 +26,8 @@ urlpatterns = [
         views.order_delete_confirm,
         name="order_delete_confirm",
     ),
+
+    path("vendor-message/<int:order_id>/", views.save_vendor_message, name="save_vendor_message",
+    ),
 ]
 

@@ -191,3 +191,25 @@ class WarrantyClaim(models.Model):
     def __str__(self):
         return f"Garantía #{self.id} - Pedido #{self.order.id}"
 
+
+class OrderVendorMessage(models.Model):
+    """Mensaje del vendedor hacia el cliente dentro del pedido."""
+
+    order = models.OneToOneField(
+        Order, on_delete=models.CASCADE, related_name="vendor_message"
+    )
+    seller = models.ForeignKey(
+        "users.UserProfile",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="order_vendor_messages",
+    )
+    message = models.TextField(blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Mensaje vendedor Pedido #{self.order_id}" 
+
+
